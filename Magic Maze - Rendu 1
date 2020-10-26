@@ -1,1 +1,18 @@
-print('tg')
+#------------------------- Import -------------------------------
+
+#------------------------- Fonctions ----------------------------
+def creatrionMap(L, l) :
+
+	map = [ [ None for i in range(l) ]
+
+			for j in range(L)
+		  ]
+
+	print(map)
+
+
+#------------------------- Main Program -------------------------
+
+if __name__ == '__main__':
+
+	print(creatrionMap(10,15))
