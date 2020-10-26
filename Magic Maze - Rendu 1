@@ -20,7 +20,12 @@ def creationMap(nbCasesX, nbCasesY) :       # Création de la fenetre pour faire
 		y += largeur
 
 	
+def creationPion():
 
+	cercle(225, 375, 17, remplissage="blue")
+	cercle(225, 425, 17, remplissage="green")
+	cercle(275, 425, 17, remplissage="red")
+	cercle(275, 375, 17, remplissage="yellow")
 
 
 def timer(temps,seconde) :
@@ -49,7 +54,7 @@ def timer(temps,seconde) :
 if __name__ == '__main__':
 	
 	creationMap(10, 15)
-
+	creationPion()
 	attente_clic()
 
 	ferme_fenetre()
