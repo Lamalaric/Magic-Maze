@@ -11,6 +11,14 @@ def creationMap(L, l) :
 	print(map)
 
 
+
+def timer(temps) :
+	timeLeft = temps
+
+	for i in range(temps) :
+		print(temps)
+		time.sleep(1)
+		temps -= 1
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
