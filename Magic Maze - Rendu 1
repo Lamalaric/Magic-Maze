@@ -4,11 +4,11 @@ from upemtk import *
 
 
 #------------------------- Fonctions ----------------------------
-def creationMap(nbCasesX, nbCasesY) :		# Création de la fenetre pour faire la map
+def creationMap(nbCasesX, nbCasesY) :       # Création de la fenetre pour faire la map
 
 	largeur = 50
 
-	cree_fenetre(nbCasesX*largeur, nbCasesY*largeur)
+	cree_fenetre(nbCasesX*largeur, (nbCasesY*largeur + 100))
 
 
 	x, y = 0, 0
@@ -23,19 +23,25 @@ def creationMap(nbCasesX, nbCasesY) :		# Création de la fenetre pour faire la m
 
 
 
-def updateTime() :
+def timer(temps,seconde) :
+	timeLeft = temps
+	secondeLeft= seconde
 
-	now = default_timer()			# Initialiser timer 00:00
 
-	minutes, seconds = divmod(now, 60)		# Conversion en minutes
+	for i in range((temps*60) + (seconde+1)) :
 
-	str_time = "%02d:%02d" % (minutes, seconds)		# Mettre en mm:ss
+		if secondeLeft ==- 1:
+			timeLeft -= 1
+			secondeLeft = 59
 
-	Plateau.itemconfigure(text_clock, text=str_time)		# Créer le timer
+		print(timeLeft, ':', secondeLeft)
 
-	fenetre.after(1000, updateTime)		# 
+		if timeLeft == 0 and secondeLeft == 0 :
+			print('Temps écoulé, perdu!')
 
-	text_clock = Plateau.create_text(40, 500)		# Afficher le timer en x y
+
+		time.sleep(1)
+		secondeLeft -= 1
 
 
 #------------------------- Main Program -------------------------
