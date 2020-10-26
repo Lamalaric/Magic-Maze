@@ -30,19 +30,19 @@ def creationPion():
 
 
 def timer(temps,seconde) :
-	timeLeft = temps
+	minutesLeft = temps
 	secondeLeft= seconde
 
 
 	for i in range((temps*60) + (seconde+1)) :
 
 		if secondeLeft ==- 1:
-			timeLeft -= 1
+			minutesLeft -= 1
 			secondeLeft = 59
 
-		print(timeLeft, ':', secondeLeft)
+		print(minutesLeft, ':', secondeLeft)
 
-		if timeLeft == 0 and secondeLeft == 0 :
+		if minutesLeft == 0 and secondeLeft == 0 :
 			print('Temps écoulé, perdu!')
 
 
