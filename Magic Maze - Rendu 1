@@ -1,18 +1,21 @@
 #------------------------- Import -------------------------------
 import time
-import tkinter
-
+from tkinter import *
 
 
 #------------------------- Fonctions ----------------------------
-def creationMap(L, l) :		# Création de la matrice pour faire la map
+def creationMap() :		# Création de la fenetre pour faire la map
+	
 
-	map = [ [ None for i in range(l) ]
+	fenetre = Tk() 					# Création de la fenêtre racine
+	fenetre.title('Magic Maze')		# Ajout d'un titre
 
-			for j in range(L)
-		  ]
+	Plateau = Canvas(fenetre, height=500, width = 500, background="white")
+	Plateau.pack()
 
-	print(map)
+	fenetre.mainloop()
+		
+	
 
 
 
@@ -21,20 +24,24 @@ def timer(temps,seconde) :
     secondeLeft= seconde
 
     
-    for i in range((temps*60)+seconde+1) :
+    for i in range( (temps*60) + (seconde+1) ) :
         
-        if secondeLeft==-1:
-            timeLeft-=1
-            secondeLeft=59
+
+        if secondeLeft == -1:
+            timeLeft -= 1
+            secondeLeft = 59
         print(timeLeft,':', secondeLeft)
-        if timeLeft == 0 and secondeLeft==0 :
+
+
+        if timeLeft == 0 and secondeLeft == 0 :
             print('Temps écoulé, perdu!')
 
-        
+
         time.sleep(1)
-        secondeLeft-= 1
+        secondeLeft -= 1
 
 
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
+	creationMap()
