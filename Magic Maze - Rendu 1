@@ -6,20 +6,21 @@ from upemtk import *
 #------------------------- Fonctions ----------------------------
 def creationMap(nbCasesX, nbCasesY) :       # Création de la fenetre pour faire la map
 
-	largeur = 50
+	largeur = 50		# Largeur des carrés
 
-	cree_fenetre((nbCasesX*largeur + 100), (nbCasesY*largeur + 100))
+	cree_fenetre((nbCasesX*largeur + 25), (nbCasesY*largeur + 100))		# Création de la fenêtre
 
 
-	x, y = 0, 0
+	x, y = 10, 10
 	for xAxes in range(nbCasesY):
 		for yAxes in range(nbCasesX):
-			rectangle(x, y, x+largeur, y+largeur)
+			rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
 			x += largeur
-		x = 0
+		x = 10
 		y += largeur
 
-	
+
+
 def creationPion():
 
 	cercle(5*47, 8*48, 17, remplissage="blue")
@@ -34,20 +35,19 @@ def timer(temps,seconde) :
 	secondeLeft= seconde
 
 
-	for i in range((temps*60) + (seconde+1)) :
+	for i in range((temps*60) + (seconde+1)) :		# On répète x secondes
 
-		if secondeLeft ==- 1:
-			minutesLeft -= 1
+		if secondeLeft < 0:		# Si les secondes sont > à 0
+			minutesLeft -= 1	# On réduit les minutes de 1 et remet secondes à 59
 			secondeLeft = 59
 
-		print(minutesLeft, ':', secondeLeft)
+		print(minutesLeft, ':', secondeLeft)		# On affiche le temps restant
 
-		if minutesLeft == 0 and secondeLeft == 0 :
-			print('Temps écoulé, perdu!')
-
-
-		time.sleep(1)
+		if minutesLeft == 0 and secondeLeft == 0 :	# Si le temps restant tombe à 0
+			print('Temps écoulé, perdu!')			# On a perdu
+										# (remplacer le print par la fonction perdu)
 		secondeLeft -= 1
+		time.sleep(1)
 
 
 #------------------------- Main Program -------------------------
@@ -56,6 +56,6 @@ if __name__ == '__main__':
 	
 	creationMap(10, 15)
 	creationPion()
-	attente_clic()
 
+	attente_clic()
 	ferme_fenetre()
