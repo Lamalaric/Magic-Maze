@@ -1,47 +1,49 @@
 #------------------------- Import -------------------------------
 import time
-from tkinter import *
+from upemtk import *
 
 
 #------------------------- Fonctions ----------------------------
-def creationMap() :		# Création de la fenetre pour faire la map
+def creationMap(nbCasesX, nbCasesY) :		# Création de la fenetre pour faire la map
+
+	largeur = 50
+
+	cree_fenetre(nbCasesX*largeur, nbCasesY*largeur)
+
+
+	x, y = 0, 0
+	for xAxes in range(nbCasesY):
+		for yAxes in range(nbCasesX):
+			rectangle(x, y, x+largeur, y+largeur)
+			x += largeur
+		x = 0
+		y += largeur
+
 	
 
-	fenetre = Tk() 					# Création de la fenêtre racine
-	fenetre.title('Magic Maze')		# Ajout d'un titre
-
-	Plateau = Canvas(fenetre, height=500, width = 500, background="white")
-	Plateau.pack()
-
-	fenetre.mainloop()
-		
-	
 
 
+def updateTime() :
 
-def timer(temps,seconde) :
-    timeLeft = temps
-    secondeLeft= seconde
+	now = default_timer()			# Initialiser timer 00:00
 
-    
-    for i in range( (temps*60) + (seconde+1) ) :
-        
+	minutes, seconds = divmod(now, 60)		# Conversion en minutes
 
-        if secondeLeft == -1:
-            timeLeft -= 1
-            secondeLeft = 59
-        print(timeLeft,':', secondeLeft)
+	str_time = "%02d:%02d" % (minutes, seconds)		# Mettre en mm:ss
 
+	Plateau.itemconfigure(text_clock, text=str_time)		# Créer le timer
 
-        if timeLeft == 0 and secondeLeft == 0 :
-            print('Temps écoulé, perdu!')
+	fenetre.after(1000, updateTime)		# 
 
-
-        time.sleep(1)
-        secondeLeft -= 1
+	text_clock = Plateau.create_text(40, 500)		# Afficher le timer en x y
 
 
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
-	creationMap()
+	
+	creationMap(10, 15)
+
+	attente_clic()
+
+	ferme_fenetre()
