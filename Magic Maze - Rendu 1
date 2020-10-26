@@ -1,9 +1,11 @@
 #------------------------- Import -------------------------------
 import time
+import tkinter
+
 
 
 #------------------------- Fonctions ----------------------------
-def creationMap(L, l) :
+def creationMap(L, l) :		# Création de la matrice pour faire la map
 
 	map = [ [ None for i in range(l) ]
 
@@ -14,19 +16,25 @@ def creationMap(L, l) :
 
 
 
-def timer(temps) :
-	timeLeft = temps
+def timer(temps,seconde) :
+    timeLeft = temps
+    secondeLeft= seconde
 
-	for i in range(temps + 1) :
-		print(timeLeft)
-		time.sleep(1)
-		timeLeft -= 1
-		
-		if timeLeft == 0 :
-			print('Temps écoulé, perdu!')
-		
+    
+    for i in range((temps*60)+seconde+1) :
+        
+        if secondeLeft==-1:
+            timeLeft-=1
+            secondeLeft=59
+        print(timeLeft,':', secondeLeft)
+        if timeLeft == 0 and secondeLeft==0 :
+            print('Temps écoulé, perdu!')
+
+        
+        time.sleep(1)
+        secondeLeft-= 1
+
+
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
-
-	print(creationMap(10,15))
