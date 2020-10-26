@@ -54,7 +54,7 @@ def timer(temps,seconde) :
 def perdu():
 
 	while 1 :
-		texte(2*50, 6*50, "Partie perdue", couleur="red", taille = 45)
+		texte(50, 6*50, "Partie perdue", couleur="red", taille = 45)
 		attente_clic()
 		break	
 	ferme_fenetre()
