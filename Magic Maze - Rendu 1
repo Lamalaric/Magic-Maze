@@ -8,7 +8,7 @@ def creationMap(nbCasesX, nbCasesY) :       # Création de la fenetre pour faire
 
 	largeur = 50
 
-	cree_fenetre(nbCasesX*largeur, (nbCasesY*largeur + 100))
+	cree_fenetre((nbCasesX*largeur + 100), (nbCasesY*largeur + 100))
 
 
 	x, y = 0, 0
