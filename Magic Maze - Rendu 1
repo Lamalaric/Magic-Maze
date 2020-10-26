@@ -44,18 +44,26 @@ def timer(temps,seconde) :
 		print(minutesLeft, ':', secondeLeft)		# On affiche le temps restant
 
 		if minutesLeft == 0 and secondeLeft == 0 :	# Si le temps restant tombe à 0
-			print('Temps écoulé, perdu!')			# On a perdu
-										# (remplacer le print par la fonction perdu)
+			perdu()									# On a perdu
+
 		secondeLeft -= 1
 		time.sleep(1)
+
+
+
+def perdu():
+
+	while 1 :
+		texte(2*50, 6*50, "Partie perdue", couleur="red", taille = 45)
+		attente_clic()
+		break	
+	ferme_fenetre()
+
 
 
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
-	
 	creationMap(10, 15)
 	creationPion()
-
-	attente_clic()
-	ferme_fenetre()
+	perdu()
