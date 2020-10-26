@@ -22,10 +22,11 @@ def creationMap(nbCasesX, nbCasesY) :       # Création de la fenetre pour faire
 	
 def creationPion():
 
-	cercle(225, 375, 17, remplissage="blue")
-	cercle(225, 425, 17, remplissage="green")
-	cercle(275, 425, 17, remplissage="red")
-	cercle(275, 375, 17, remplissage="yellow")
+	cercle(5*47, 8*48, 17, remplissage="blue")
+	cercle(5*47, 9*48, 17, remplissage="green")
+	cercle(6*47, 8*48, 17, remplissage="red")
+	cercle(6*47, 9*48, 17, remplissage="yellow")
+
 
 
 def timer(temps,seconde) :
