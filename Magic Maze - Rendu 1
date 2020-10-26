@@ -17,10 +17,14 @@ def creationMap(L, l) :
 def timer(temps) :
 	timeLeft = temps
 
-	for i in range(temps) :
+	for i in range(temps + 1) :
 		print(timeLeft)
 		time.sleep(1)
 		timeLeft -= 1
+		
+		if timeLeft == 0 :
+			print('Temps écoulé, perdu!')
+		
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
