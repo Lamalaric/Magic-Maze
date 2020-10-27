@@ -4,29 +4,33 @@ from upemtk import *
 
 
 #------------------------- Fonctions ----------------------------
-def creationMap(nbCasesX, nbCasesY) :       # Création de la fenetre pour faire la map
+def creationMap(l, L) :       # Création de la fenetre pour faire la map
 
+	global largeur, nbCasesX, nbCasesY
+	
+	nbCasesX = l
+	nbCasesY = L
 	largeur = 50		# Largeur des carrés
 
-	cree_fenetre((nbCasesX*largeur + 25), (nbCasesY*largeur + 100))		# Création de la fenêtre
+	cree_fenetre((l*largeur), (L*largeur + 100))		# Création de la fenêtre
 
 
-	x, y = 10, 10
-	for xAxes in range(nbCasesY):
-		for yAxes in range(nbCasesX):
+	x, y = 0, 0
+	for xAxes in range(L):
+		for yAxes in range(l):
 			rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
 			x += largeur
-		x = 10
+		x = 0
 		y += largeur
 
 
 
 def creationPion():
 
-	cercle(5*47, 8*48, 17, remplissage="blue")
-	cercle(5*47, 9*48, 17, remplissage="green")
-	cercle(6*47, 8*48, 17, remplissage="red")
-	cercle(6*47, 9*48, 17, remplissage="yellow")
+	cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
+	cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
+	cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
+	cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="yellow")
 
 
 
