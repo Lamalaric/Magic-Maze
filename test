@@ -1,3 +1,72 @@
-print('Hello World')
-print('pd')
-ptn de MERDEEEE
+#------------------------- Import -------------------------------
+import time
+from upemtk import *
+
+
+#------------------------- Fonctions ----------------------------
+def creationMap(l, L) :       # Création de la fenetre pour faire la map
+
+	global largeur, nbCasesX, nbCasesY
+	
+	nbCasesX = l
+	nbCasesY = L
+	largeur = 50		# Largeur des carrés
+
+	cree_fenetre((l*largeur), (L*largeur + 100))		# Création de la fenêtre
+
+
+	x, y = 0, 0
+	for xAxes in range(L):
+		for yAxes in range(l):
+			rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
+			x += largeur
+		x = 0
+		y += largeur
+
+
+
+def creationPion():
+
+	cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
+	cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
+	cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
+	cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="yellow")
+
+
+
+def timer(temps,seconde, startTime) :
+	minutesLeft = temps
+	secondeLeft= seconde
+
+	secElapsed = int((time.time() - startTime))		# Secondes écoulées depuis le début du programme
+	timeElapsed = minutesLeft, ':', (secondeLeft - secElapsed)	# Stock le temps restant
+
+	texte(50, 50, timeElapsed, couleur="red")	# Affiche le temps restant
+
+	if (secondeLeft - secElapsed) == -1 :
+		minutesLeft -= 1
+		secondeLeft = 59
+		startTime = time.time()
+
+def perdu():
+
+	while 1 :
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Partie perdue", couleur="red", ancrage = "center", taille = 45)
+		attente_clic()
+		break	
+	ferme_fenetre()
+
+
+
+#------------------------- Main Program -------------------------
+
+if __name__ == '__main__':
+	startTime = time.time()		# Secondes depuis 1970 (pour timer())
+
+	creationMap(12, 16)
+	creationPion()
+
+
+	while 1 :
+		timer(2,5, startTime)
+		attente_clic()
