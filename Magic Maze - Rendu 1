@@ -9,30 +9,22 @@ from upemtk import *
 def creationMap(l, L) :       # Création de la fenetre pour faire la map
 
 
-	global largeur, nbCasesX, nbCasesY, Plateau
+	global nbCasesX, nbCasesY, Plateau
 	
 	nbCasesX = l
 	nbCasesY = L
-	largeur = 50		# Largeur des carrés
+	# largeur = 50		# Largeur des carrés
 
-	cree_fenetre((nbCasesX*largeur+1), (nbCasesY*largeur + 100))		# Création de la fenêtre
+	# cree_fenetre((nbCasesX*largeur+1), (nbCasesY*largeur + 100))		# Création de la fenêtre
 
 	
 	Plateau = []
-
-	x, y = 0, 0
 
 	for yAxes in range(nbCasesY):
 		Plateau.append([])
 
 		for xAxes in range(nbCasesX):
-			Plateau[yAxes].append(rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey'))
-			x += largeur
-		
-		x = 0
-		y += largeur
-
-
+			Plateau[yAxes].append('0')
 
 # def timer(temps,seconde, startTime) :
 # 	minutesLeft = temps
@@ -54,9 +46,10 @@ def creationPion():
 
 	global PionB, PionG, PionR,PionY 		# Initialisation des variables pour les pions
 
-	PionB = Plateau.append(cercle(25,25,20))
+	midX = len(Plateau[0]) // 2
+	midY = len(Plateau) // 2
 
-
+	Plateau[midY][midX] = 1
 	# PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
 	# PionG =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
 	# PionR =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
@@ -126,5 +119,7 @@ if __name__ == '__main__':
 
 	creationMap(10,15)
 	creationPion()
-	attente_clic()
-	ferme_fenetre()
+
+	print(Plateau)
+	# attente_clic()
+	# ferme_fenetre()
