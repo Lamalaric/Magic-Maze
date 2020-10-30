@@ -4,7 +4,10 @@ from upemtk import *
 
 
 #------------------------- Fonctions ----------------------------
+
+
 def creationMap(l, L) :       # Création de la fenetre pour faire la map
+
 
 	global largeur, nbCasesX, nbCasesY
 	
@@ -15,59 +18,110 @@ def creationMap(l, L) :       # Création de la fenetre pour faire la map
 	cree_fenetre((l*largeur), (L*largeur + 100))		# Création de la fenêtre
 
 
+	
+	Plateau = []
+
 	x, y = 0, 0
-	for xAxes in range(L):
-		for yAxes in range(l):
-			rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
+
+	for xAxes in range(l):
+		Plateau.append([])
+
+		for yAxes in range(L):
+			Plateau[xAxes].append(rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey'))
 			x += largeur
+		
 		x = 0
 		y += largeur
 
 
 
-def creationPion():
+# def timer(temps,seconde, startTime) :
+# 	minutesLeft = temps
+# 	secondeLeft= seconde
 
-	cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
-	cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
-	cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
-	cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="yellow")
+# 	secElapsed = int((time.time() - startTime))		# Secondes écoulées depuis le début du programme
+# 	timeElapsed = minutesLeft, ':', (secondeLeft - secElapsed)	# Stock le temps restant
 
+# 	texte(50, 50, timeElapsed, couleur="red")	# Affiche le temps restant
 
-
-def timer(temps,seconde) :
-	minutesLeft = temps
-	secondeLeft= seconde
-
-
-	for i in range((temps*60) + (seconde+1)) :		# On répète x secondes
-
-		if secondeLeft < 0:		# Si les secondes sont > à 0
-			minutesLeft -= 1	# On réduit les minutes de 1 et remet secondes à 59
-			secondeLeft = 59
-
-		print(minutesLeft, ':', secondeLeft)		# On affiche le temps restant
-
-		if minutesLeft == 0 and secondeLeft == 0 :	# Si le temps restant tombe à 0
-			perdu()									# On a perdu
-
-		secondeLeft -= 1
-		time.sleep(1)
-
-
+# 	if (secondeLeft - secElapsed) == -1 :
+# 		minutesLeft -= 1
+# 		secondeLeft = 59
+# 		startTime = time.time()
 
 def perdu():
 
 	while 1 :
-		texte(50, 6*50, "Partie perdue", couleur="red", taille = 45)
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Partie perdue", couleur="red", ancrage = "center", taille = 45)
 		attente_clic()
 		break	
 	ferme_fenetre()
+
+def creationPion():
+
+	global PionB, PionG, PionR,PionY 		# Initialisation des variables pour les pions
+
+	PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
+	PionG =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
+	PionR =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
+	PionY =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="yellow")
+
+
+def deplacement_touches():
+
+	while True:
+		evenement = donne_evenement()
+		type_ev = type_evenement(evenement)
+
+		if type_ev == 'Touche':
+			nom_touche = touche(evenement)
+
+			if nom_touche == 'z':
+				efface(PionB)
+				PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  (((nbCasesY//2+1)*largeur) - (largeur//2)) - 50, 17, remplissage="green")
+
+	
+		mise_a_jour()   
+
+
+
+def movePionB() :
+
+	while True:
+		evenement = donne_evenement()
+		type_ev = type_evenement(evenement)
+
+		if type_ev == 'Touche':
+			nom_touche = touche(evenement)
+
+			if nom_touche == 'z':
+				efface(PionB)
+				PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  (((nbCasesY//2+1)*largeur) - (largeur//2)) - 50, 17, remplissage="blue")
+
+		mise_a_jour()
+
+
+
+
+
+# def touchetap():
+# 	while True:
+# 		evenement = donne_evenement()			# Récupère la touche appuyée
+# 		type_ev = type_evenement(evenement)		# Renvoie en str la touche appuyée
+
+# 		if type_ev == 'Touche':							# Comparaison de la touche
+# 			touchPressed = print(touche(evenement))		# Afficher la touche appuyée
+
+
+# 		mise_a_jour() # Actualise la fenêtre
 
 
 
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
-	creationMap(10, 15)
-	creationPion()
-	perdu()
+	# startTime = time.time()		# Secondes depuis 1970 (pour timer())
+
+	creationMap(10,15)
+	attente_clic()
+	fenetre_ferme()
