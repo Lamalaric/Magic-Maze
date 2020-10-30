@@ -9,15 +9,15 @@ from upemtk import *
 def creationMap(l, L) :       # Création de la fenetre pour faire la map
 
 
-	global largeur, nbCasesX, nbCasesY
+	global largeur, nbCasesX, nbCasesY, Plateau
 	
 	nbCasesX = l
 	nbCasesY = L
 	largeur = 50		# Largeur des carrés
 
-	cree_fenetre((l*largeur), (L*largeur + 100))		# Création de la fenêtre
+	cree_fenetre((l*largeur+1), (L*largeur + 100))		# Création de la fenêtre
 
-
+	
 	
 	Plateau = []
 
@@ -124,4 +124,4 @@ if __name__ == '__main__':
 
 	creationMap(10,15)
 	attente_clic()
-	fenetre_ferme()
+	ferme_fenetre()
