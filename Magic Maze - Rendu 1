@@ -90,13 +90,15 @@ def timer(temps,seconde, startTime) :
 	secElapsed = int((time.time() - startTime))					# Secondes écoulées depuis le début du programme
 	timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)		# Stock le temps restant
 
-	effacer(timer)												# Effacer l'ancien temps			
+	efface(timer)												# Effacer l'ancien temps			
 	texte(50, 50, timeLeft, couleur="red", tag = "timer")		# Affiche le temps restant
 
 	if (secondeLeft - secElapsed) == -1 :
 		minutesLeft -= 1
 		secondeLeft = 59
 		startTime = time.time()
+		
+	mise_a_jour()
 
 	return timeLeft
 
@@ -154,11 +156,12 @@ if __name__ == '__main__':
 
 	creationMap(10,15)
 	creationPion()
-
+	
+	while 1:
 		#deplacement_touches()
-	print(Plateau)
-	affichage()
-	#timer(3, 2, startTime)
+		print(Plateau)
+		affichage()
+		timer(3, 2, startTime)
 		# if timeElapsed == 0 :
 		# 	texte(perdu...)
 		# 	break
