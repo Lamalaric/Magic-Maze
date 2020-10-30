@@ -6,100 +6,110 @@ from upemtk import *
 #------------------------- Fonctions ----------------------------
 
 
-def creationMap(l, L) :       # Création de la fenetre pour faire la map
+# ----- Partie Logique -----
+
+def creationMap(l, L) :
 
 
-	global nbCasesX, nbCasesY, Plateau
+	global nbCasesX, nbCasesY, Plateau, largeur
 	
 	nbCasesX = l
 	nbCasesY = L
-	# largeur = 50		# Largeur des carrés
+	largeur = 50		# Largeur des carrés
 
-	# cree_fenetre((nbCasesX*largeur+1), (nbCasesY*largeur + 100))		# Création de la fenêtre
+	cree_fenetre((nbCasesX*largeur+1), (nbCasesY*largeur + 100))		# Création de la fenêtre
 
 	
 	Plateau = []
-
+	# Création de la matrice
 	for yAxes in range(nbCasesY):
 		Plateau.append([])
 
 		for xAxes in range(nbCasesX):
-			Plateau[yAxes].append('0')
-
-# def timer(temps,seconde, startTime) :
-# 	minutesLeft = temps
-# 	secondeLeft= seconde
-
-# 	secElapsed = int((time.time() - startTime))		# Secondes écoulées depuis le début du programme
-# 	timeElapsed = minutesLeft, ':', (secondeLeft - secElapsed)	# Stock le temps restant
-
-# 	texte(50, 50, timeElapsed, couleur="red")	# Affiche le temps restant
-
-# 	if (secondeLeft - secElapsed) == -1 :
-# 		minutesLeft -= 1
-# 		secondeLeft = 59
-# 		startTime = time.time()
+			Plateau[yAxes].append(0)
 
 
 
 def creationPion():
 
-	global PionB, PionG, PionR,PionY 		# Initialisation des variables pour les pions
+	global midX, midY
 
-	midX = len(Plateau[0]) // 2
-	midY = len(Plateau) // 2
+	midX = len(Plateau[0]) // 2 -1		# On stock où est la moitié de l'axe X
+	midY = len(Plateau) // 2			# On stock où est la moitié de l'axe Y
 
-	Plateau[midY][midX] = 1
-	# PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
-	# PionG =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
-	# PionR =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
-	# PionY =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="yellow")
+	# On définit l'emplacement initial de chaque pion
+	Plateau[midY-1][midX] = 1
+	Plateau[midY-1][midX+1] = 2
+	Plateau[midY][midX] = 3
+	Plateau[midY][midX+1] = 4
+
+
+
+
+# ----- Partie visuelle -----
+
+def affichage() :
+
+	# Actualise l'affichage en fonction de chaque élément dans la matrice
+
+	x, y = 0, 0
+	for yAxes in range(nbCasesY):
+		for xAxes in range(nbCasesX):
+			rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
+
+			if (Plateau[yAxes][xAxes] == 1 or
+			Plateau[yAxes][xAxes] == 2 or
+			Plateau[yAxes][xAxes] == 3 or
+			Plateau[yAxes][xAxes] == 4):
+
+				cercle(xAxes*largeur-largeur/2+largeur, yAxes*largeur-largeur/2+largeur, 20)
+
+			x += largeur
+
+		x = 0
+		y += largeur
+
+
+
+
+def timer(temps,seconde, startTime) :
+	minutesLeft = temps
+	secondeLeft= seconde
+
+	secElapsed = int((time.time() - startTime))					# Secondes écoulées depuis le début du programme
+	timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)		# Stock le temps restant
+
+	effacer(timer)												# Effacer l'ancien temps			
+	texte(50, 50, timeLeft, couleur="red", tag = "timer")		# Affiche le temps restant
+
+	if (secondeLeft - secElapsed) == -1 :
+		minutesLeft -= 1
+		secondeLeft = 59
+		startTime = time.time()
+
+	return timeLeft
+
+
+
 
 
 def deplacement_touches():
 
-	while True:
-		evenement = donne_evenement()
-		type_ev = type_evenement(evenement)
-
-		if type_ev == 'Touche':
-			nom_touche = touche(evenement)
-
-			if nom_touche == 'z':
-				efface(PionB)
-				PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  (((nbCasesY//2+1)*largeur) - (largeur//2)) - 50, 17, remplissage="green")
-
-	
-		mise_a_jour()   
-
-
-
-def movePionB() :
-
-	while True:
-		evenement = donne_evenement()
-		type_ev = type_evenement(evenement)
-
-		if type_ev == 'Touche':
-			nom_touche = touche(evenement)
-
-			if nom_touche == 'z':
-				efface(PionB)
-				PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  (((nbCasesY//2+1)*largeur) - (largeur//2)) - 50, 17, remplissage="blue")
-
-		mise_a_jour()
-
-
-def perdu():
-
 	while 1 :
-		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Partie perdue", couleur="red", ancrage = "center", taille = 45)
-		attente_clic()
-		break	
-	ferme_fenetre()
+		evenement = donne_evenement()
+		type_ev = type_evenement(evenement)
 
+		if type_ev == 'Touche':
+			nom_touche = touche(evenement)
+
+			if nom_touche == 'z':
+				Plateau[midY-1][midX] == Plateau[midY][midX]
+				break
+
+	mise_a_jour()
 
 # def touchetap():
+
 # 	while True:
 # 		evenement = donne_evenement()			# Récupère la touche appuyée
 # 		type_ev = type_evenement(evenement)		# Renvoie en str la touche appuyée
@@ -112,14 +122,39 @@ def perdu():
 
 
 
+
+def perdu():
+
+	while 1 :
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Partie perdue", couleur="red", ancrage = "center", taille = 45)
+		attente_clic()
+		break	
+	ferme_fenetre()
+
+
+
+
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
 	# startTime = time.time()		# Secondes depuis 1970 (pour timer())
 
+
+
 	creationMap(10,15)
 	creationPion()
 
-	print(Plateau)
-	# attente_clic()
-	# ferme_fenetre()
+
+	while 1 :
+		#deplacement_touches()
+		print(Plateau)
+		affichage()
+		timer()
+		# if timeElapsed == 0 :
+		# 	texte(perdu...)
+		# 	break
+	
+
+	attente_clic()
+	ferme_fenetre()
+			
