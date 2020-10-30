@@ -89,24 +89,27 @@ def timer(temps,seconde, startTime) :
 
 	return timeLeft
 
-
-
-
-
 def deplacement_touches():
+	
+	
+	while True :
+		test=attente_clic_ou_touche()
 
-	while 1 :
-		evenement = donne_evenement()
-		type_ev = type_evenement(evenement)
+		if test == 'Left':
+			
+			for yAxes in range(len(Plateau[0])):
 
-		if type_ev == 'Touche':
-			nom_touche = touche(evenement)
 
-			if nom_touche == 'z':
-				Plateau[midY-1][midX] == Plateau[midY][midX]
-				break
+				for xAxes in range(len(Plateau)):
+				
+				
+					
+						
+		return Plateau
 
-	mise_a_jour()
+
+
+
 
 # def touchetap():
 
