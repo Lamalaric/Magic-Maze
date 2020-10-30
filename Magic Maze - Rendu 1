@@ -15,19 +15,18 @@ def creationMap(l, L) :       # Création de la fenetre pour faire la map
 	nbCasesY = L
 	largeur = 50		# Largeur des carrés
 
-	cree_fenetre((l*largeur+1), (L*largeur + 100))		# Création de la fenêtre
+	cree_fenetre((nbCasesX*largeur+1), (nbCasesY*largeur + 100))		# Création de la fenêtre
 
-	
 	
 	Plateau = []
 
 	x, y = 0, 0
 
-	for xAxes in range(l):
+	for yAxes in range(nbCasesY):
 		Plateau.append([])
 
-		for yAxes in range(L):
-			Plateau[xAxes].append(rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey'))
+		for xAxes in range(nbCasesX):
+			Plateau[yAxes].append(rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey'))
 			x += largeur
 		
 		x = 0
@@ -49,22 +48,19 @@ def creationMap(l, L) :       # Création de la fenetre pour faire la map
 # 		secondeLeft = 59
 # 		startTime = time.time()
 
-def perdu():
 
-	while 1 :
-		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Partie perdue", couleur="red", ancrage = "center", taille = 45)
-		attente_clic()
-		break	
-	ferme_fenetre()
 
 def creationPion():
 
 	global PionB, PionG, PionR,PionY 		# Initialisation des variables pour les pions
 
-	PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
-	PionG =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
-	PionR =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
-	PionY =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="yellow")
+	PionB = Plateau.append(cercle(25,25,20))
+
+
+	# PionB =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
+	# PionG =cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
+	# PionR =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
+	# PionY =cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="yellow")
 
 
 def deplacement_touches():
@@ -101,7 +97,13 @@ def movePionB() :
 		mise_a_jour()
 
 
+def perdu():
 
+	while 1 :
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Partie perdue", couleur="red", ancrage = "center", taille = 45)
+		attente_clic()
+		break	
+	ferme_fenetre()
 
 
 # def touchetap():
@@ -123,5 +125,6 @@ if __name__ == '__main__':
 	# startTime = time.time()		# Secondes depuis 1970 (pour timer())
 
 	creationMap(10,15)
+	creationPion()
 	attente_clic()
 	ferme_fenetre()
