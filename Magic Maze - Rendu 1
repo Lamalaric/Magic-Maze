@@ -82,45 +82,73 @@ def affichage() :
 
 
 
-
 def timer(temps,seconde, startTime) :
 	minutesLeft = temps
 	secondeLeft= seconde
 
+
 	secElapsed = int((time.time() - startTime))					# Secondes écoulées depuis le début du programme
 	timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)		# Stock le temps restant
 
-	efface(timer)												# Effacer l'ancien temps			
-	texte(50, 50, timeLeft, couleur="red", tag = "timer")		# Affiche le temps restant
-
-	if (secondeLeft - secElapsed) == -1 :
+	if (secondeLeft - secElapsed) > 0 :
 		minutesLeft -= 1
 		secondeLeft = 59
 		startTime = time.time()
-		
-	mise_a_jour()
+
+	efface(timer)												# Effacer l'ancien temps			
+	texte(50, 50, timeLeft, couleur="red", tag = "timer")		# Affiche le nouveau temps
 
 	return timeLeft
 
 
 
+def choixPion():
+
+	touche = attente_touche_jusqua(1000)
+
+	if touche == 's' :
+		touche2 = attente_touche_jusqua(1000)
+
+		if touche2 == 'b' :
+			a=0
+		if touche2 == 'g' :
+			a=0# Actions pion Vert
+		if touche2 == 'y' :
+			a=0# Actions pion Jaune
+		if touche2 == 'r' :
+			a=0# Actions pion Rouge
 
 
-def deplacement_touches():
-	
-	
-	while True :
-		test=attente_clic_ou_touche()
 
-		if test == 'Left':
-			
-			for yAxes in range(len(Plateau[0])):
+def movePionB():
+
+	touche = attente_touche_jusqua(1000)
+	print(touche)
+
+	for yAxes in range(nbCasesY):
+		for xAxes in range(nbCasesX):
+
+			if Plateau[yAxes][xAxes] == 1 :
+				if touche == 'Left':
+					Plateau[yAxes][xAxes-1] = 1
+					Plateau[yAxes][xAxes] = 0
+
+				if touche == 'Right':
+					Plateau[yAxes][xAxes+1] = 1
+					Plateau[yAxes][xAxes] = 0
+
+				if touche == 'Up':
+					Plateau[yAxes-1][xAxes] = 1
+					Plateau[yAxes][xAxes] = 0
+
+				if touche == 'Down':
+					Plateau[yAxes+1][xAxes+1] = 1
+					Plateau[yAxes][xAxes] = 0
+
+					# si y'a un autre truc : tu fais ri-en.
+					# si t'es au bout : tu fais ri-en.
 
 
-				for xAxes in range(len(Plateau)):
-
-						
-		return Plateau
 
 # def touchetap():
 
@@ -158,14 +186,16 @@ if __name__ == '__main__':
 	creationPion()
 	
 	while 1:
-		#deplacement_touches()
 		print(Plateau)
+
 		affichage()
 		timer(3, 2, startTime)
+		movePionB()
+
+		mise_a_jour()
+		
+
+
 		# if timeElapsed == 0 :
 		# 	texte(perdu...)
 		# 	break
-	
-	attente_clic()
-	ferme_fenetre()
-			
