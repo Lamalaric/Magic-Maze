@@ -6,7 +6,6 @@ from upemtk import *
 
 #------------------------- Fonctions ----------------------------
 
-
 # ----- Partie Logique -----
 
 def creationMap(l, L) :
@@ -83,22 +82,31 @@ def affichage() :
 
 
 def timer(temps,seconde, startTime) :
-	minutesLeft = temps
-	secondeLeft= seconde
+    minutesLeft = temps
+    secondeLeft= seconde
 
 
-	secElapsed = int((time.time() - startTime))					# Secondes écoulées depuis le début du programme
-	timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)		# Stock le temps restant
+    secElapsed = int((time.time() - startTime))                 # Secondes écoulées depuis le début du programme
+    
+    if (secondeLeft - secElapsed)<0 :
+        minutesLeft -= 1
+        secondeLeft = 62
+        startTime = time.time()
+    timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)     # Stock le temps restant
 
-	if (secondeLeft - secElapsed) > 0 :
-		minutesLeft -= 1
-		secondeLeft = 59
-		startTime = time.time()
+       
+    efface(timer)                                               # Effacer l'ancien temps            
+    texte(30, 715, timeLeft, couleur="red", tag = "timer")       # Affiche le nouveau temps
+    
 
-	efface(timer)												# Effacer l'ancien temps			
-	texte(50, 50, timeLeft, couleur="red", tag = "timer")		# Affiche le nouveau temps
+    # Si le temps ombe à 0 == c'est perdu
+    if timeLeft== (0,':',0):
+        texte(123,750,'Partie perdu', couleur='red', taille = 35)
+        return
 
-	return timeLeft
+    if timeLeft==(-1,':',59):
+        time.sleep(3)
+        ferme_fenetre()
 
 
 
@@ -122,6 +130,7 @@ def choixPion():
 
 def movePionB():
 
+	dejaVu = False
 	touche = attente_touche_jusqua(1000)
 	print(touche)
 
@@ -132,38 +141,39 @@ def movePionB():
 				if touche == 'Left':
 					Plateau[yAxes][xAxes-1] = 1
 					Plateau[yAxes][xAxes] = 0
+					break
 
 				if touche == 'Right':
 					Plateau[yAxes][xAxes+1] = 1
 					Plateau[yAxes][xAxes] = 0
+					break
 
 				if touche == 'Up':
 					Plateau[yAxes-1][xAxes] = 1
 					Plateau[yAxes][xAxes] = 0
+					break
 
 				if touche == 'Down':
-					Plateau[yAxes+1][xAxes+1] = 1
-					Plateau[yAxes][xAxes] = 0
-
+					if dejaVu == False :
+						Plateau[yAxes+1][xAxes] = 1
+						Plateau[yAxes][xAxes] = 0
+						dejaVu = True
+					
 					# si y'a un autre truc : tu fais ri-en.
 					# si t'es au bout : tu fais ri-en.
 
 
 
-# def touchetap():
+def choixPion2(choix):
 
-# 	while True:
-# 		evenement = donne_evenement()			# Récupère la touche appuyée
-# 		type_ev = type_evenement(evenement)		# Renvoie en str la touche appuyée
-
-# 		if type_ev == 'Touche':							# Comparaison de la touche
-# 			touchPressed = print(touche(evenement))		# Afficher la touche appuyée
-
-
-# 		mise_a_jour() # Actualise la fenêtre
-
-
-
+		switcher={
+				'b': movePionB,
+				# 'v': movePionV,
+				# 'j': movePionJ,
+				# 'r': movePionR,
+			 }
+		switcher.get(choix)
+		print('vu')
 
 def perdu():
 
@@ -185,15 +195,25 @@ if __name__ == '__main__':
 	creationMap(10,15)
 	creationPion()
 	
+	a=0
 	while 1:
 		print(Plateau)
 
 		affichage()
-		timer(3, 2, startTime)
+		timer(3, 30, startTime)
+		
 		movePionB()
 
+
+
+
 		mise_a_jour()
-		
+
+		# print(a)
+		# a+=1
+		# if (a%5) == 0:
+		# 	efface_tout()
+		# 	print('fait')
 
 
 		# if timeElapsed == 0 :
