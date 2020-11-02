@@ -1,52 +1,203 @@
 #------------------------- Import -------------------------------
+import os
 import time
 from upemtk import *
-
+from random import *
+from selector import couleurChoisie
 
 #------------------------- Fonctions ----------------------------
-def creationMap(l, L) :       # Création de la fenetre pour faire la map
 
-	global largeur, nbCasesX, nbCasesY
-	
+
+# ----- Partie Logique -----
+
+def creationMap(l, L) :
+	global nbCasesX, nbCasesY, Plateau, largeur
 	nbCasesX = l
 	nbCasesY = L
+
 	largeur = 50		# Largeur des carrés
 
-	cree_fenetre((l*largeur), (L*largeur + 100))		# Création de la fenêtre
+	cree_fenetre((nbCasesX*largeur+1), (nbCasesY*largeur + 150))		# Création de la fenêtre
 
+	Plateau = []
+	# Création de la matrice
+	for yAxes in range(nbCasesY):
+		Plateau.append([])				# Dans chaque ligne du plateau
+		for xAxes in range(nbCasesX):
+			Plateau[yAxes].append(0)	# On met l fois 0, qui représente une case vide
+
+
+
+def emptyBox(n) : 
+	"""
+	Rajoute n cases "vides" aléatoirement dans le Plateau.
+	Les joueurs ne peuvent pas aller sur les cases vides.
+	"""
+	
+
+
+
+
+
+def choixCarre():
+	rectangle(15, nbCasesY*largeur+55, 65, nbCasesY*largeur+105, remplissage ='blue')
+	rectangle(85, nbCasesY*largeur+55, 135, nbCasesY*largeur+105, remplissage ='green')
+	rectangle(155, nbCasesY*largeur+55, 205, nbCasesY*largeur+105, remplissage ='yellow')
+	rectangle(225, nbCasesY*largeur+55, 275, nbCasesY*largeur+105, remplissage ='red')
+
+
+def creationPion():
+	"""
+	Définit la position de départ de chaque pion sur le plateau.
+	"""
+	global midX, midY
+
+	midX = len(Plateau[0]) // 2 -1		# On stock où est la moitié de l'axe X
+	midY = len(Plateau) // 2			# On stock où est la moitié de l'axe Y
+
+	# On définit l'emplacement initial de chaque pion
+	Plateau[midY-1][midX] = 1
+	Plateau[midY-1][midX+1] = 2
+	Plateau[midY][midX] = 3
+	Plateau[midY][midX+1] = 4
+
+
+
+# ----- Partie visuelle -----
+
+def affichage() :
+	"""
+		Actualise l'affichage en fonction de chaque élément dans la matrice.
+		Si l'elem. de la matrice est 0 : c'est une case libre donc on affiche un simple rectangle.
+		Si l'elem. de la matrice est 5 : c'est une case vide donc on affiche un simple rectangle.
+		Si l'elem. de la matrice est 1, 2, 3, 4 : c'est un pion donc on affiche un rond avec sa couleur correspondante.
+		Si l'elem. de la matrice est 11,12,13,14 : c'est un objet donc on affiche un carré avec sa couleur correspondante
+	"""
 
 	x, y = 0, 0
-	for xAxes in range(L):
-		for yAxes in range(l):
+	for yAxes in range(nbCasesY):
+		for xAxes in range(nbCasesX):
 			rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
+
+			if Plateau[yAxes][xAxes] == 1 :
+				image(xAxes*largeur-largeur/2+largeur, yAxes*largeur-largeur/2+largeur, 'Warrior - pion.gif', ancrage = 'center')
+
+			if Plateau[yAxes][xAxes] == 2 : 
+				image(xAxes*largeur-largeur/2+largeur, yAxes*largeur-largeur/2+largeur, 'Wizzard - pion.gif', ancrage = 'center')
+
+			if Plateau[yAxes][xAxes] == 3 : 
+				image(xAxes*largeur-largeur/2+largeur, yAxes*largeur-largeur/2+largeur, 'Elf - pion.gif', ancrage = 'center')
+
+			if Plateau[yAxes][xAxes] == 4 : 
+				image(xAxes*largeur-largeur/2+largeur, yAxes*largeur-largeur/2+largeur, 'Dwarf - pion.gif', ancrage = 'center')
+
 			x += largeur
+
 		x = 0
 		y += largeur
 
 
 
-def creationPion():
-
-	cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="blue")
-	cercle( ((nbCasesX//2)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="green")
-	cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2+1)*largeur) - (largeur//2), 17, remplissage="red")
-	cercle( ((nbCasesX//2+1)*largeur) - (largeur//2),  ((nbCasesY//2)*largeur) - (largeur//2), 17, remplissage="yellow")
-
-
-
 def timer(temps,seconde, startTime) :
-	minutesLeft = temps
-	secondeLeft= seconde
+    minutesLeft = temps
+    secondeLeft= seconde
 
-	secElapsed = int((time.time() - startTime))		# Secondes écoulées depuis le début du programme
-	timeElapsed = minutesLeft, ':', (secondeLeft - secElapsed)	# Stock le temps restant
 
-	texte(50, 50, timeElapsed, couleur="red")	# Affiche le temps restant
+    secElapsed = int((time.time() - startTime))                 # Secondes écoulées depuis le début du programme
+    
+    if (secondeLeft - secElapsed)<0 :
+        minutesLeft -= 1
+        secondeLeft = 62
+        startTime = time.time()
+    timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)     # Stock le temps restant
 
-	if (secondeLeft - secElapsed) == -1 :
-		minutesLeft -= 1
-		secondeLeft = 59
-		startTime = time.time()
+       
+    efface(timer)                                               # Effacer l'ancien temps            
+    texte(30, 750, timeLeft, couleur="red", tag = "timer")       # Affiche le nouveau temps
+    
+
+    # Si le temps ombe à 0 == c'est perdu
+    if timeLeft== (0,':',0):
+        texte(123,750,'Partie perdu', couleur='red', taille = 35)
+        return
+
+    if timeLeft==(-1,':',59):
+        time.sleep(3)
+        ferme_fenetre()
+
+
+
+def choixPion():
+
+	touche = attente_touche_jusqua(1000)
+
+	if touche == 's' :
+		touche2 = attente_touche_jusqua(1000)
+
+		if touche2 == 'b' :
+			a=0
+		if touche2 == 'g' :
+			a=0# Actions pion Vert
+		if touche2 == 'y' :
+			a=0# Actions pion Jaune
+		if touche2 == 'r' :
+			a=0# Actions pion Rouge
+
+
+
+def movePion(player):
+
+	dejaVu = False
+	touche = attente_touche_jusqua(1000)
+	print(touche)
+
+	for yAxes in range(nbCasesY):
+		for xAxes in range(nbCasesX):
+
+			if Plateau[yAxes][xAxes] == player :
+				# Aller à gauche
+				if touche == 'Left':
+					if Plateau[yAxes][xAxes-1] == 0 and Plateau[yAxes][xAxes-1] is Plateau[yAxes][0]:			# Si case : vide, ET bord du plateau : False
+						Plateau[yAxes][xAxes-1] = player
+						Plateau[yAxes][xAxes] = 0
+						break
+				# Aller à droite
+				if touche == 'Right':
+					if xAxes < nbCasesX-1 :							# Tant qu'il est pas au dernier élement de la liste
+						if Plateau[yAxes][xAxes+1] == 0:			# Si la case est vide	
+							Plateau[yAxes][xAxes+1] = player
+							Plateau[yAxes][xAxes] = 0
+							break
+				# Aller en haut
+				if touche == 'Up':
+					if Plateau[yAxes-1][xAxes] == 0  and Plateau[yAxes-1][xAxes] is Plateau[0][xAxes]:			# Si case : vide, ET bord du plateau : False
+						Plateau[yAxes-1][xAxes] = player
+						Plateau[yAxes][xAxes] = 0
+						break
+				# Aller en bas
+				if touche == 'Down':
+					if yAxes < nbCasesY-1 :							# Tant qu'il est pas à la dernière liste de la matrice
+						if Plateau[yAxes+1][xAxes] == 0 :			# Si la case est vide
+							if dejaVu == False :					
+								Plateau[yAxes+1][xAxes] = player
+								Plateau[yAxes][xAxes] = 0
+								dejaVu = True
+					
+					# si y'a un autre truc : tu fais ri-en.
+					# si t'es au bout : tu fais ri-en.
+
+
+
+def choixPion2(choix):
+
+		switcher={
+				'b': movePionB, 
+				'v': movePionV,
+				'j': movePionJ,
+				'r': movePionR,
+			 }
+		switcher.get(choix, 'gfr gre')
+		print('vu')
 
 def perdu():
 
@@ -58,15 +209,39 @@ def perdu():
 
 
 
+
 #------------------------- Main Program -------------------------
 
 if __name__ == '__main__':
 	startTime = time.time()		# Secondes depuis 1970 (pour timer())
 
-	creationMap(12, 16)
+
+	creationMap(10,15)
 	creationPion()
+	
+	a=0
+	while 1:
+		print(Plateau)
+
+		affichage()
+		choixCarre()
+		timer(3, 30, startTime)
+		
+		# choix = attente_touche_jusqua(1000)
+		# choixPion2(choix)
+
+		movePion(couleurChoisie)
 
 
-	while 1 :
-		timer(2,5, startTime)
-		attente_clic()
+		mise_a_jour()
+
+		# Reset l'affichage toutes les 5 secondes
+		a+=1
+		if (a%1) == 0:
+			efface_tout()
+			print('\nRESET')
+
+
+		# if timeElapsed == 0 :
+		# 	texte(perdu...)
+		# 	break
