@@ -44,11 +44,63 @@ def caseVide(n) :
 
 
 
+
+
+
+
+
+
 def choixCarre():
 	rectangle(15, nbCasesY*largeur+55, 65, nbCasesY*largeur+105, remplissage ='blue')
 	rectangle(85, nbCasesY*largeur+55, 135, nbCasesY*largeur+105, remplissage ='green')
 	rectangle(155, nbCasesY*largeur+55, 205, nbCasesY*largeur+105, remplissage ='yellow')
 	rectangle(225, nbCasesY*largeur+55, 275, nbCasesY*largeur+105, remplissage ='red')
+
+	rectangle(i*100+20, 200+20, i*100+80, 200+80, color, color)
+
+
+def affiche_actions(i, color):
+	efface_tout()
+	rectangle(i*100+20, nbCasesY*largeur+50, i*100+80, nbCasesY*largeur+110, color, color)
+	for i in [0,1,2,3]:
+		rectangle(i*100+25, nbCasesY*largeur+55, i*100+75, nbCasesY*largeur+105, "blue", "blue")
+
+
+
+def prout():
+	touche = attente_touche_jusqua(1000)
+	print(touche)
+	if touche == None:
+		print('None')
+
+	if touche == 'a':
+		if not valide:
+			numero_action = (numero_action + 1) % 4
+			affiche_actions(numero_action, "red")
+			actuel += 1
+			if actuel < 4:
+				actuel = 1
+
+
+	elif touche == 'v':
+		if valide == True:
+			couleurChoisie = actuel
+		else:
+			couleurChoisie = 4
+
+		affiche_actions(numero_action, "red" if valide else "black")
+		valide = not valide
+
+		
+	else:
+		print("râté")
+		ferme_fenetre()
+		quit()
+
+
+
+
+
 
 
 def creationPion():
@@ -132,31 +184,31 @@ def affichage() :
 
 
 def timer(temps,seconde, startTime) :
-    minutesLeft = temps
-    secondeLeft= seconde
+	minutesLeft = temps
+	secondeLeft= seconde
 
 
-    secElapsed = int((time.time() - startTime))                 # Secondes écoulées depuis le début du programme
-    
-    if (secondeLeft - secElapsed)<0 :
-        minutesLeft -= 1
-        secondeLeft = 62
-        startTime = time.time()
-    timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)     # Stock le temps restant
+	secElapsed = int((time.time() - startTime))                 # Secondes écoulées depuis le début du programme
+	
+	if (secondeLeft - secElapsed)<0 :
+		minutesLeft -= 1
+		secondeLeft = 62
+		startTime = time.time()
+	timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)     # Stock le temps restant
 
-       
-    efface(timer)                                               # Effacer l'ancien temps            
-    texte(30, 750, timeLeft, couleur="red", tag = "timer")       # Affiche le nouveau temps
-    
+	   
+	efface(timer)                                               # Effacer l'ancien temps            
+	texte(30, 750, timeLeft, couleur="red", tag = "timer")       # Affiche le nouveau temps
+	
 
-    # Si le temps ombe à 0 == c'est perdu
-    if timeLeft== (0,':',0):
-        texte(123,750,'Partie perdu', couleur='red', taille = 35)
-        return
+	# Si le temps ombe à 0 == c'est perdu
+	if timeLeft== (0,':',0):
+		texte(123,750,'Partie perdu', couleur='red', taille = 35)
+		return
 
-    if timeLeft==(-1,':',59):
-        time.sleep(3)
-        ferme_fenetre()
+	if timeLeft==(-1,':',59):
+		time.sleep(3)
+		ferme_fenetre()
 
 
 
@@ -167,7 +219,7 @@ def movePion(player):
 
 	dejaVu = False
 	touche = attente_touche_jusqua(1000)
-	print(touche)
+	print('Touche appuyée:',touche)
 
 	for yAxes in range(nbCasesY):
 		for xAxes in range(nbCasesX):
@@ -249,19 +301,24 @@ if __name__ == '__main__':
 	creationMap(10,15)
 	creationPion()
 	creationObjet()
-
-	caseVide(5)
+	caseVide(20)
 	
 
+	# valide = False
+	# numero_action = 0
+	# actuel = 1
+	# affiche_actions(numero_action,"red")
+
+
 	while 1:
-		print(Plateau)
 
 		affichage()
-		choixCarre()
 		timer(3, 30, startTime)
 
 		movePion(couleurChoisie)
 
+		# prout()
 
+			
 		mise_a_jour()
 		efface_tout()
