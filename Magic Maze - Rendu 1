@@ -10,6 +10,10 @@ from random import *
 # ---------- Partie Logique ----------
 
 def creationMap(l, L) :
+	"""
+	Créer une fenêtre avec un nombre de cases en X et Y donné.
+	Créer une matrice remplie de 0
+	"""
 	global nbCasesX, nbCasesY, largeur, Plateau 
 	nbCasesX = l
 	nbCasesY = L
@@ -43,11 +47,26 @@ def creationPion():
 	Plateau[midY][midX+1] = 4
 
 
+def creationCaseVide(n) : 
+	"""
+	Génère n cases vides dans la matrice.
+	Les joueurs ne peuvent pas aller sur les cases vides.
+	"""
+	i = 0
+	while i != n:
+		rdmY = randint(1,nbCasesY-1)
+		rdmX = randint(1,nbCasesX-1)
+
+		if Plateau[rdmY][rdmX] == 0 :
+			Plateau[rdmY][rdmX] = 7
+			i += 1
+
 def creationObjet():
 	"""
 	Génère 4 objets dans la matrice.
 	Chaque joueur doit récupérer son objet.
 	"""
+	global objWarrior, objWizzard, objElf, objDwarf
 	obj = 11
 	i = 0
 	while i != 4:
@@ -59,53 +78,85 @@ def creationObjet():
 			i += 1
 			obj += 1
 
+	for yAxes in range(nbCasesY):
+		for xAxes in range(nbCasesX):
+			if Plateau[yAxes][xAxes] == 11:
+				objWarrior = [yAxes, xAxes]
+
+			if Plateau[yAxes][xAxes] == 12:
+				objWizzard = [yAxes, xAxes]
+
+			if Plateau[yAxes][xAxes] == 13:
+				objElf = [yAxes, xAxes]
+
+			if Plateau[yAxes][xAxes] == 14:
+				objDwarf = [yAxes, xAxes]
+
 
 def creationSortie():
+	"""	
+	Définit la position de la sortie
+	"""
 	rdmY = randint(1,nbCasesY-1)
 	rdmX = randint(1,nbCasesX-1)
 
-	Plateau[rdmY][rdmX] = 5
-
-
-def caseVide(n) : 
-	"""
-	Génère n cases vides dans la matrice.
-	Les joueurs ne peuvent pas aller sur les cases vides.
-	"""
-	i = 0
-	while i != n:
-		rdmY = randint(1,nbCasesY-1)
-		rdmX = randint(1,nbCasesX-1)
-
-		if Plateau[rdmY][rdmX] == 0 :
-			Plateau[rdmY][rdmX] = 6
-			i += 1
-
-
-def affiche_actions(i):
-	# Affiche le carré de séléction
-	cercle(nbCasesX*largeur +37, (nbCasesY*largeur)/2 - 2*largeur +i*largeur, 25, epaisseur = 2, couleur = 'red')
-	# rectangle((i-1)*100+20, nbCasesY*largeur+50, (i-1)*100+80, nbCasesY*largeur+110, "red", "red")
-
-	#Affiche les 4 carrés correspondant à chaque pion
-	image(nbCasesX*largeur +37, (nbCasesY*largeur)/2 - 1*largeur, 'pions/transparent/warrior_transp.gif', ancrage = 'center')
-	image(nbCasesX*largeur +37, (nbCasesY*largeur)/2, 'pions/transparent/wizzard_transp.gif', ancrage = 'center')
-	image(nbCasesX*largeur +37, (nbCasesY*largeur)/2 + 1*largeur, 'pions/transparent/elf_transp.gif', ancrage = 'center')
-	image(nbCasesX*largeur +37, (nbCasesY*largeur)/2 + 2*largeur -8, 'pions/transparent/dwarf_transp.gif', ancrage = 'center')
+	if Plateau[rdmY][rdmX] == 0 :
+		Plateau[rdmY][rdmX] = 5
 
 
 def selectionPion(pionChoisi):
+	"""
+	Fonctionne avec la fonction pionSelected(i), qui permet de choisir le pion à actionner.
+	Elle renvoie le pion séléctionné à bouger.
+	"""
 	global pionVisé
 
-	print(touche)
-
-	if touche == 'a':
-		pionVisé = pionChoisi
-		pionVisé += 1
-		if pionVisé > 4:
-			pionVisé = 1
+	pionVisé = pionChoisi
+	pionVisé += 1
+	if pionVisé > 4:
+		pionVisé = 1
 
 	return pionVisé
+
+
+def isSortieOn(objets):
+	"""
+	Active la sortie si tous les joueurs sont sur leur case objet.
+	"""
+	pionsSurObj = 0
+
+	for yAxes in range(nbCasesY):
+		for xAxes in range(nbCasesX):
+
+			if Plateau[yAxes][xAxes] == 1:
+				if yAxes == objWarrior[0] and xAxes == objWarrior[1]:
+					pionsSurObj += 1
+
+			if Plateau[yAxes][xAxes] == 2:
+				if yAxes == objWizzard[0] and xAxes == objWizzard[1]:
+					pionsSurObj += 1
+
+			if Plateau[yAxes][xAxes] == 3:
+				if yAxes == objElf[0] and xAxes == objElf[1]:
+					pionsSurObj += 1
+
+			if Plateau[yAxes][xAxes] == 4:
+				if yAxes == objDwarf[0] and xAxes == objDwarf[1]:
+					pionsSurObj += 1
+	print(pionsSurObj)
+	if pionsSurObj == 4:
+		for yAxes in range(nbCasesY):
+			for xAxes in range(nbCasesX):
+				if Plateau[yAxes][xAxes] == 5:
+					Plateau[yAxes][xAxes] = 6
+
+
+def isWin(pionsSortis, sec):
+	"""
+	Si les 4 joueurs ont atteints la sortie, la partie s'arrête et on à gagner.
+	"""
+	if pionsSortis == 4:
+		gagner(secElapsed)
 
 
 # ---------- Partie visuelle ----------
@@ -115,99 +166,146 @@ def affichage() :
 		Actualise l'affichage en fonction de chaque élément dans la matrice.
 		Si l'elem. de la matrice est 0 : c'est une case libre alors on affiche un simple rectangle.
 		Si l'elem. de la matrice est 5 : c'est la sortie alors on affiche l'image correspondante.
-		Si l'elem. de la matrice est 6 : c'est une case vide alors on affiche un rectangle foncé
+		Si l'elem. de la matrice est 7 : c'est une case vide alors on affiche un rectangle foncé
 		Si l'elem. de la matrice est 1, 2, 3, 4 : c'est un pion alors on affiche l'image correspondante.
 		Si l'elem. de la matrice est 11,12,13,14 : c'est un objet alors on affiche l'image correspondante.
 	"""
 	x, y = 0, 0
 	for yAxes in range(nbCasesY):
 		locY = yAxes*largeur-largeur/2+largeur
-
 		for xAxes in range(nbCasesX):
 			locX = xAxes*largeur-largeur/2+largeur
 
 			rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
+			# image(x+largeur//2, y+largeur//2, 'ground2.gif', ancrage = 'center')
 			x += largeur
 
-
 			if Plateau[yAxes][xAxes] == 1 :
-				image(locX, locY, 'pions/Warrior_pion.gif', ancrage = 'center')
+				image(locX, locY, 'pions/Warrior_pion.gif', ancrage = 'center', tag = 'warrior')
 
 			if Plateau[yAxes][xAxes] == 2 : 
-				image(locX, locY, 'pions/Wizzard_pion.gif', ancrage = 'center')
+				image(locX, locY, 'pions/Wizzard_pion.gif', ancrage = 'center', tag = 'wizzard')
 
 			if Plateau[yAxes][xAxes] == 3 : 
-				image(locX, locY, 'pions/Elf_pion.gif', ancrage = 'center')
+				image(locX, locY, 'pions/Elf_pion.gif', ancrage = 'center', tag = 'elf')
 
 			if Plateau[yAxes][xAxes] == 4 : 
-				image(locX, locY, 'pions/Dwarf_pion.gif', ancrage = 'center')
+				image(locX, locY, 'pions/Dwarf_pion.gif', ancrage = 'center', tag = 'dwarf')
 
 			if Plateau[yAxes][xAxes] == 5 : 
-				image(locX+1, locY, 'sortie/vortex_transp.gif', ancrage = 'center')
+				image(locX+1, locY, 'sortie/vortex_transp_off.gif', ancrage = 'center', tag = 'exitOff')
 
-			if Plateau[yAxes][xAxes] == 6 :
-				rectangle(xAxes*largeur, yAxes*largeur, xAxes*largeur+largeur, yAxes*largeur+largeur, remplissage = 'dark grey')
+			if Plateau[yAxes][xAxes] == 6 : 
+				print('vu')
+				image(locX+1, locY, 'sortie/vortex_transp_on.gif', ancrage = 'center', tag = 'exitOn')
+
+			if Plateau[yAxes][xAxes] == 7 :
+				rectangle(xAxes*largeur, yAxes*largeur, xAxes*largeur+largeur, yAxes*largeur+largeur, remplissage = 'dark grey', tag = 'empty')
 				# image(locX, locY, 'hack.gif', ancrage = 'center')
 
 			if Plateau[yAxes][xAxes] == 11 : 
-				image(locX, locY, 'objets/transparent/sword_transp.gif', ancrage = 'center', tag = 'Objet Warrior')	
+				image(locX, locY, 'objets/transparent/sword_transp.gif', ancrage = 'center', tag = 'warriorObj')	
 
 			if Plateau[yAxes][xAxes] == 12 : 
-				image(locX, locY, 'objets/transparent/flask_transp.gif', ancrage = 'center', tag = 'Objet Wizzard')
+				image(locX, locY, 'objets/transparent/flask_transp.gif', ancrage = 'center', tag = 'wizzardObj')
 
 			if Plateau[yAxes][xAxes] == 13 : 
-				image(locX, locY, 'objets/transparent/bow_transp.gif', ancrage = 'center', tag = 'Objet Elf')
+				image(locX, locY, 'objets/transparent/bow_transp.gif', ancrage = 'center', tag = 'elfObj')
 
 			if Plateau[yAxes][xAxes] == 14 : 
-				image(locX, locY, 'objets/transparent/axe_transp.gif', ancrage = 'center', tag = 'Objet Dwarf')
+				image(locX, locY, 'objets/transparent/axe_transp.gif', ancrage = 'center', tag = 'dwarfObj')
 		x = 0
 		y += largeur
 
+def movePion(player, objets, pionsSortis, debug):
+	"""
+	Gère les déplacements à faire selon chaque touche directionnelle appuyée.
+	Selon la case à laquelle veut aller un pion, l'action sera différente.
 
-
-
-def movePion(player):
-	global touche, pionVisé
+	Cette fonction s'occupe également de récupérer la touche appuyée et exécuter l'action correspondante.
+	"""
+	global touche, pionVisé, objetsOwn, pionsInSortie, debugMode
 
 	dejaVu = False
+	objetsOwn = objets
 	touche = attente_touche_jusqua(1000)
+	choixMove = ['Left', 'Right', 'Up', 'Down']
+	choixPion = [1, 2, 3, 4]
 
+	# Ferme la fenêtre si la touche appuyée est 'q'
 	if touche == 'q' :
 		ferme_fenetre()
 
-	if touche == 'a' :
+	# Change de pion à bouger si la touche appuyée est 's'
+	if touche == 's' :
 		pionVisé = selectionPion(pionVisé)
 
-	# if touche != None :
-	# 	efface_tout()
+	# Passe en mode debug
+	if touche == 'd':
+		debug = not debug
+	if debug == True :
+		touche = choixMove[randint(0,3)]
+		player = choixPion[randint(0,3)]
 
 
 	for yAxes in range(nbCasesY):
 		for xAxes in range(nbCasesX):
-
 			if Plateau[yAxes][xAxes] == player :
+
 				# Aller à gauche
 				if touche == 'Left':
-					if Plateau[yAxes][xAxes-1] == 0 and Plateau[yAxes][xAxes-1] is Plateau[yAxes][0]:			# Si case : vide, ET bord du plateau : False
+					if Plateau[yAxes][xAxes-1] == 0 and Plateau[yAxes][xAxes-1] is Plateau[yAxes][0]:			# Si case = vide, ET bord du plateau : False
 						Plateau[yAxes][xAxes-1] = player
 						Plateau[yAxes][xAxes] = 0
+						break
+
+					if Plateau[yAxes][xAxes-1] == player+10 :		# Si case = objet, compteur d'objets incrémenté de 1
+						Plateau[yAxes][xAxes-1] = player#+10
+						Plateau[yAxes][xAxes] = 0
+						objetsOwn += 1
+						debug = False
+						break
+
+					if Plateau[yAxes][xAxes-1] == 6 :				# Si case = sortie active, compteur pions sortis incrémenté de 1
+						Plateau[yAxes][xAxes] = 0
+						pionsInSortie += 1
 						break
 
 				# Aller à droite
 				if touche == 'Right':
 					if xAxes < nbCasesX-1 :							# Tant qu'il est pas au dernier élement de la liste
-						if Plateau[yAxes][xAxes+1] == 0:			# Si la case est vide
-							print(Plateau[yAxes][xAxes+1])				
+						if Plateau[yAxes][xAxes+1] == 0:			# Si la case est vide				
 							Plateau[yAxes][xAxes+1] = player
 							Plateau[yAxes][xAxes] = 0
 							break
 
+						if Plateau[yAxes][xAxes+1] == player+10 :	# Si case = objet, compteur d'objets incrémenté de 1
+							Plateau[yAxes][xAxes+1] = player#+10
+							Plateau[yAxes][xAxes] = 0
+							objetsOwn += 1
+							break
+
+						if Plateau[yAxes][xAxes+1] == 6 :			# Si case = sortie active, compteur pions sortis incrémenté de 1
+							Plateau[yAxes][xAxes] = 0
+							pionsInSortie += 1
+							break
+
 				# Aller en haut
 				if touche == 'Up':
-					if Plateau[yAxes-1][xAxes] == 0  and Plateau[yAxes-1][xAxes] is Plateau[0][xAxes]:			# Si case : vide, ET bord du plateau : False
-						print(Plateau[yAxes-1][xAxes])
+					if Plateau[yAxes-1][xAxes] == 0  and Plateau[yAxes-1][xAxes] is Plateau[0][xAxes]:			# Si case = vide, ET bord du plateau : False
 						Plateau[yAxes-1][xAxes] = player
 						Plateau[yAxes][xAxes] = 0
+						break
+
+					if Plateau[yAxes-1][xAxes] == player+10 :		# Si case = objet, compteur d'objets incrémenté de 1
+							Plateau[yAxes-1][xAxes] = player#+10
+							Plateau[yAxes][xAxes] = 0
+							objetsOwn += 1
+							break
+
+					if Plateau[yAxes-1][xAxes] == 6 :				# Si case = sortie active, compteur pions sortis incrémenté de 1
+						Plateau[yAxes][xAxes] = 0
+						pionsInSortie += 1
 						break
 
 				# Aller en bas
@@ -215,71 +313,122 @@ def movePion(player):
 					if yAxes < nbCasesY-1 :							# Tant qu'il est pas à la dernière liste de la matrice
 						if Plateau[yAxes+1][xAxes] == 0 :			# Si la case est vide
 							if dejaVu == False :
-								print(Plateau[yAxes+1][xAxes])			
 								Plateau[yAxes+1][xAxes] = player
 								Plateau[yAxes][xAxes] = 0
 								dejaVu = True
+								break
 
+						if Plateau[yAxes+1][xAxes] == player+10 :	# Si case = objet, compteur d'objets incrémenté de 1
+							if dejaVu == False :
+								Plateau[yAxes+1][xAxes] = player
+								Plateau[yAxes][xAxes] = 0
+								objetsOwn += 1
+								dejaVu = True
+								break
 
-def timer(temps,seconde, startTime) :
-	minutesLeft = temps
-	secondeLeft= seconde
+						if Plateau[yAxes+1][xAxes] == 6 :			# Si case = sortie active, compteur pions sortis incrémenté de 1
+							if dejaVu == False :
+								Plateau[yAxes][xAxes] = 0
+								pionsInSortie += 1
+								break
+	return debug
 
+def pionSelected(i):
+	"""
+	Affiche les icônes de pions sur le côté, ainsi qu'un rond indiquant quel pion est séléctionné.
+	"""
+	# Affiche le carré de séléction
+	cercle(nbCasesX*largeur +37, (nbCasesY*largeur)/2 - 2*largeur +i*largeur, 25, epaisseur = 2, couleur = 'red')
 
-	secElapsed = int((time.time() - startTime))                 # Secondes écoulées depuis le début du programme
-	
-	if (secondeLeft - secElapsed)<0 :
-		minutesLeft -= 1
-		secondeLeft = 62
-		startTime = time.time()
-	timeLeft = minutesLeft, ':', (secondeLeft - secElapsed)     # Stock le temps restant
+	#Affiche les 4 carrés correspondant à chaque pion
+	image(nbCasesX*largeur +37, (nbCasesY*largeur)/2 - 1*largeur, 'pions/transparent/warrior_transp.gif', ancrage = 'center')
+	image(nbCasesX*largeur +37, (nbCasesY*largeur)/2, 'pions/transparent/wizzard_transp.gif', ancrage = 'center')
+	image(nbCasesX*largeur +37, (nbCasesY*largeur)/2 + 1*largeur, 'pions/transparent/elf_transp.gif', ancrage = 'center')
+	image(nbCasesX*largeur +37, (nbCasesY*largeur)/2 + 2*largeur -8, 'pions/transparent/dwarf_transp.gif', ancrage = 'center')
 
-	   
-	efface(timer)                                               # Effacer l'ancien temps            
-	texte(30, 750, secElapsed, couleur="red", tag = "timer")       # Affiche le nouveau temps
-	
+def timer(seconde, startTime) :
+	"""
+	Affiche un timer décroissant en secondes, depuis le nombre rentré en paramètre.
+	"""
+	global secElapsed, secLeft
 
-	# Si le temps ombe à 0 == c'est perdu
-	if timeLeft== (0,':',0):
-		texte(123,750,'Partie perdu', couleur='red', taille = 35)
-		return
+	secElapsed = int((time.time() - startTime)) # Secondes écoulées depuis le début du programme
+	secLeft = seconde - secElapsed				# Secondes restantes
+	couleur = 'dark green'
 
-	if timeLeft==(-1,':',59):
-		time.sleep(3)
-		ferme_fenetre()
+	if secLeft == -1:							# Si le temps tombe à 0, partie perdue.
+		perdu()
 
+	if secLeft < 30:							# Si - de 30sec restantes : couleur rouge
+		couleur = 'red'
+		
+	#Affichage du temps restant en secondes
+	texte(largeur//2, nbCasesY*largeur+37.5, "Temps restant: " + str(secLeft) + "s", couleur=couleur, taille = 20, tag = "timer", ancrage = 'w')
 
 def perdu():
-
+	"""
+	Si tous les pions ne sont pas sortis avant la fin du temps impartit, on arrête la partie et on affiche les texte de fin.
+	Partie perdue.
+	"""
 	while 1 :
-		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Partie perdue", couleur="red", ancrage = "center", taille = 45)
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Temps écoulé, perdu..", couleur="red", ancrage = "center", taille = 45)
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//1.5)*largeur, "Vous ferez mieux la prochaine fois, retentez votre chance!", couleur="black", ancrage = "center", taille = 25)
+		attente_clic()
+		break
+	ferme_fenetre()
+
+def gagner(sec):
+	"""
+	Si tous les pions sont sortis, on arrête la partie et on affiche les texte de fin
+	Partie gagnée.
+	"""
+	while 1 :
+		efface_tout()
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Vous avez gagné!", couleur="dark green", ancrage = "center", taille = 45)
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//1.5)*largeur, "Félicitations, vous avez finit le jeu en " + str(sec) + "sec", couleur="black", ancrage = "center", taille = 25)
 		attente_clic()
 		break	
 	ferme_fenetre()
 
-
 def instructions():
-	texte()
+	"""
+	Affiche sous forme de texte les actions que le joueur peut faire
+	"""
+	ligne(largeur*5.3 +longueur_texte(secLeft), nbCasesY*largeur+12, largeur*5.3 +longueur_texte(secLeft), nbCasesY*largeur+65, couleur='black', epaisseur=3)
+	texte(largeur*6 +longueur_texte(secLeft), nbCasesY*largeur+12, "Commandes:", couleur='black', taille = 14, ancrage = 'w')
+	texte(largeur*6 +longueur_texte(secLeft) +27.5, nbCasesY*largeur+30, "s : Changer de pion à déplacer", couleur='black', taille = 12, ancrage = 'w')
+	texte(largeur*6 +longueur_texte(secLeft) +27.5, nbCasesY*largeur+50, "←↑→↓ : Déplacer le pion séléctionné", couleur='black', taille = 12, ancrage = 'w')
+	texte(largeur*6 +290 +longueur_texte(secLeft) +27.5, nbCasesY*largeur+30, "q : Quitter le jeu", couleur='black', taille = 12, ancrage = 'w')
+	texte(largeur*6 +290 +longueur_texte(secLeft) +27.5, nbCasesY*largeur+50, "d : Débug mode (on/off)", couleur='black', taille = 12, ancrage = 'w')
 
 #------------------------- Main Program -------------------------
 if __name__ == '__main__':
-	startTime = time.time()		# Secondes depuis 1970 (pour timer())
+	# Initialisations variables
+	startTime = time.time()
+	pionVisé = 1
+	objetsOwn = 0
+	pionsInSortie = 0
+	debugMode = False
 
-	creationMap(15,10)
+	# Création entités
+	creationMap(16,10)
 	creationPion()
 	creationObjet()
 	creationSortie()
-	caseVide(20)
+	creationCaseVide(20)
 
-	pionVisé = 1
-
+	# Boucle principale
 	while 1:
-		print(Plateau)
+		timer(60, startTime)
+		instructions()
 
-		timer(3, 30, startTime)
-		affiche_actions(pionVisé)
+		isSortieOn(objetsOwn)
+		isWin(pionsInSortie, secElapsed)
+
 		affichage()
-		movePion(pionVisé)
+
+		pionSelected(pionVisé)
+		debugMode = movePion(pionVisé, objetsOwn, pionsInSortie, debugMode)
 
 		mise_a_jour()
 		efface_tout()
