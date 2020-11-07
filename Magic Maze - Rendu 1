@@ -6,6 +6,48 @@ from random import *
 
 # ------------------------- Fonctions ---------------------------- #
 
+# ----------- Menu du jeu ------------ #
+
+def affichageMenu():
+	"""
+	Créée le menu avec du texte et des rectangles servant de "boutons"
+	"""
+	global xy1_Jouer, xy2_Jouer, xy1_Rules, xy2_Rules
+	## Titre du jeu ##
+	image(largeur*nbCasesX/2 +largeur -15, 10, 'titreJeu.gif', ancrage="n")
+
+	rectangle(largeur*2, largeur*3, nbCasesX*largeur, largeur*9.5, epaisseur = 3, couleur = 'red')
+
+	texte((nbCasesX*largeur)/3.5, (nbCasesY*largeur)/3 +25, "Double-clic droit sur un bouton", couleur="black", ancrage="w")
+	## Bouton lançant le programme principal ##
+	rectangle((nbCasesX*largeur)/4 +largeur/3, (nbCasesY*largeur)/2, (nbCasesX*largeur)/2 +largeur/3, (nbCasesY*largeur)/1.5, remplissage="black", tag = 'startButton')
+	texte((nbCasesX*largeur)/4 +largeur*1.5 + 4, (nbCasesY*largeur)/2 + 37.5, "Jouer", couleur="white", ancrage="w", tag = 'start')
+	xy1_Jouer = (nbCasesX*largeur/4)+largeur/3, (nbCasesY*largeur)/2
+	xy2_Jouer = (nbCasesX*largeur/2)+largeur/3, (nbCasesY*largeur)/1.5
+	## Bouton affichant les règles ##
+	rectangle((nbCasesX*largeur)/4 +largeur/3 +largeur*5, (nbCasesY*largeur)/2, (nbCasesX*largeur)/2 +largeur*5 +largeur/3, (nbCasesY*largeur)/1.5, remplissage="black", tag = 'rulesButton')
+	texte((nbCasesX*largeur)/4 +largeur*6.5 -4, (nbCasesY*largeur)/2 + 37.5, "Règles", couleur="white", ancrage="w", tag = 'rules')
+	xy1_Rules = (nbCasesX*largeur/4) +largeur/3 +largeur*5, (nbCasesY*largeur)/2
+	xy2_Rules = (nbCasesX*largeur/2) +largeur/3 +largeur*5, (nbCasesY*largeur)/1.5
+	## Bouton quittant le jeu ##
+	rectangle((nbCasesX*largeur)/2.5 +largeur/3, (nbCasesY*largeur)/1.4, (nbCasesX*largeur)/1.5 +largeur/3, (nbCasesY*largeur)/1.13, remplissage="black", tag = 'closeButton')
+	texte((nbCasesX*largeur)/2.1 +largeur/3, (nbCasesY*largeur)/1.26, "Quitter", couleur="white", ancrage="w", tag = 'close')
+
+def choixMenu():
+	"""
+	Compare les coordonnées du clic aux coordonnées des rectangles du menus.
+	Si le clic est dans le rectangle "Jouer" : on lance le jeu.
+	Si le clic est dans le rectangle "Règles" : on affiche les règles.
+	"""
+	coordClic = attente_clic()
+
+	if coordClic[0] > xy1_Jouer[0] and coordClic[0] < xy2_Jouer[0]:
+		if coordClic[1] > xy1_Jouer[1] and coordClic[1] < xy2_Jouer[1]:
+			return 'Jouer'
+
+	if coordClic[0] > xy1_Rules[0] and coordClic[0] < xy2_Rules[0]:
+		if coordClic[1] > xy1_Rules[1] and coordClic[1] < xy2_Rules[1]:
+			return 'Règles'
 
 # ---------- Partie Logique ---------- #
 
@@ -389,32 +431,41 @@ def gagner(sec):
 		break	
 	ferme_fenetre()
 
+
 # ----------------------- Main Program --------------------------- #
 if __name__ == '__main__':
 	# Initialisations variables
-	startTime = time.time()
-	sortieOn = False
-	pionVisé = 1
-	objetsOwn = 0
-	pionsInSortie = 0
-	debugMode = False
-
-	# Création entités
 	creationMap(16,10)
-	creationPion()
-	creationObjet()
-	creationSortie()
-	creationCaseVide(20)
+	affichageMenu()
 
-	# Boucle principale
-	while 1:
-		affichageBas()
-		affichageDroit()
-		affichage()
-
-		isWin(pionsInSortie, secElapsed)
-		sortieOn = isSortieOn(sortieOn)
-		debugMode = movePion(pionVisé, objetsOwn, pionsInSortie, debugMode)
-		
-		mise_a_jour()
+	if choixMenu() == 'Règles':
+		attente_clic()
 		efface_tout()
+		texte(5, 25, "Règles du jeu:", couleur="red", ancrage="w")
+
+	if choixMenu() == 'Jouer':
+		startTime = time.time()
+		sortieOn = False
+		pionVisé = 1
+		objetsOwn = 0
+		pionsInSortie = 0
+		debugMode = False
+
+		# Création entités
+		creationPion()
+		creationObjet()
+		creationSortie()
+		creationCaseVide(20)
+
+		# Boucle principale
+		while 1:
+			affichageBas()
+			affichageDroit()
+			affichage()
+
+			isWin(pionsInSortie, secElapsed)
+			sortieOn = isSortieOn(sortieOn)
+			debugMode = movePion(pionVisé, objetsOwn, pionsInSortie, debugMode)
+			
+			mise_a_jour()
+			efface_tout()
