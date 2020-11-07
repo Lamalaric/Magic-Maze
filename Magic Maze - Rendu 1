@@ -12,13 +12,14 @@ def affichageMenu():
 	"""
 	Créée le menu avec du texte et des rectangles servant de "boutons"
 	"""
-	global xy1_Jouer, xy2_Jouer, xy1_Rules, xy2_Rules
+	global xy1_Jouer, xy2_Jouer, xy1_Rules, xy2_Rules, xy1_Close, xy2_Close
 	## Titre du jeu ##
+	efface_tout()
 	image(largeur*nbCasesX/2 +largeur -15, 10, 'titreJeu.gif', ancrage="n")
 
 	rectangle(largeur*2, largeur*3, nbCasesX*largeur, largeur*9.5, epaisseur = 3, couleur = 'red')
 
-	texte((nbCasesX*largeur)/3.5, (nbCasesY*largeur)/3 +25, "Double-clic droit sur un bouton", couleur="black", ancrage="w")
+	texte((nbCasesX*largeur)/3.5, (nbCasesY*largeur)/3 +25, "Double-clic gauche sur un bouton", couleur="black", ancrage="w")
 	## Bouton lançant le programme principal ##
 	rectangle((nbCasesX*largeur)/4 +largeur/3, (nbCasesY*largeur)/2, (nbCasesX*largeur)/2 +largeur/3, (nbCasesY*largeur)/1.5, remplissage="black", tag = 'startButton')
 	texte((nbCasesX*largeur)/4 +largeur*1.5 + 4, (nbCasesY*largeur)/2 + 37.5, "Jouer", couleur="white", ancrage="w", tag = 'start')
@@ -32,6 +33,8 @@ def affichageMenu():
 	## Bouton quittant le jeu ##
 	rectangle((nbCasesX*largeur)/2.5 +largeur/3, (nbCasesY*largeur)/1.4, (nbCasesX*largeur)/1.5 +largeur/3, (nbCasesY*largeur)/1.13, remplissage="black", tag = 'closeButton')
 	texte((nbCasesX*largeur)/2.1 +largeur/3, (nbCasesY*largeur)/1.26, "Quitter", couleur="white", ancrage="w", tag = 'close')
+	xy1_Close = (nbCasesX*largeur)/2.5 +largeur/3, (nbCasesY*largeur)/1.4
+	xy2_Close = (nbCasesX*largeur)/1.5 +largeur/3, (nbCasesY*largeur)/1.13
 
 def choixMenu():
 	"""
@@ -48,6 +51,26 @@ def choixMenu():
 	if coordClic[0] > xy1_Rules[0] and coordClic[0] < xy2_Rules[0]:
 		if coordClic[1] > xy1_Rules[1] and coordClic[1] < xy2_Rules[1]:
 			return 'Règles'
+
+	if coordClic[0] > xy1_Close[0] and coordClic[0] < xy2_Close[0]:
+		if coordClic[1] > xy1_Close[1] and coordClic[1] < xy2_Close[1]:
+			return 'Quitter'
+
+def rules():
+	"""
+	Affiche les règles du jeu
+	"""
+	efface_tout()
+
+	texte(5, 25, "Règles du jeu:", couleur="red", ancrage="w")
+
+
+	rectangle(largeur*(nbCasesX-2),largeur/2,largeur*nbCasesX +42.5, largeur*1.5, remplissage = 'black')
+	texte(largeur*(nbCasesX-1.5),largeur, 'Retour', couleur = 'white', ancrage = 'w')
+	coordClic = attente_clic()
+	if coordClic[0] > largeur*(nbCasesX-2) and coordClic[0] < largeur*nbCasesX +42.5:
+		if coordClic[1] > largeur/2 and coordClic[1] < largeur*1.5:
+			affichageMenu()
 
 # ---------- Partie Logique ---------- #
 
@@ -109,9 +132,12 @@ def creationSortie():
 	"""
 	rdmY = randint(0,nbCasesY-1)
 	rdmX = randint(0,nbCasesX-1)
+	sortieCréée=0
+	while sortieCréée != 1:
 	# On place une sortie sur une case libre.
-	if Plateau[rdmY][rdmX] == 0 :
-		Plateau[rdmY][rdmX] = 5
+		if Plateau[rdmY][rdmX] == 0 :
+			Plateau[rdmY][rdmX] = 5
+			sortieCréée+=1
 
 def creationCaseVide(n) : 
 	"""
@@ -171,14 +197,14 @@ def isSortieOn(etatSortie):
 		return False
 	return True
 
-def isWin(pionsSortis, sec):
+def isWin(pionsSortis, min, sec):
 	"""
 	Si les 4 joueurs ont atteints la sortie, la partie s'arrête et on à gagner.
 	"""
 	if pionsSortis == 4:
-		gagner(secElapsed)
+		gagner(minutes, secondes)
 
-def movePion(player, objets, pionsSortis, debug):
+def actionTouche(player, objets, pionsSortis, debug):
 	"""
 	Gère les déplacements à faire selon chaque touche directionnelle appuyée.
 	Selon la case à laquelle veut aller un pion, l'action sera différente.
@@ -374,27 +400,30 @@ def timer(seconde, startTime) :
 	"""
 	Affiche un timer décroissant en secondes, depuis le nombre rentré en paramètre.
 	"""
-	global secElapsed, secLeft
+	global minutes, secondes
 	secElapsed = int((time.time() - startTime)) # Secondes écoulées depuis le début du programme
 	secLeft = seconde - secElapsed				# Secondes restantes
 	couleur = 'dark green'
+	# Conversion du temps en minutes:secondes
+	minutes = secLeft // 60
+	secondes = secLeft - minutes*60
 
-	if secLeft == -1:							# Si le temps tombe à 0, partie perdue.
+	if minutes < 0:		# Si le temps tombe à 0, partie perdue.
 		perdu()
-	if secLeft < 30:							# Si - de 30sec restantes : couleur rouge
+	if minutes == 0 and secondes < 30:			# Si - de 30sec restantes : couleur rouge
 		couleur = 'red'
 	#Affichage du temps restant en secondes
-	texte(largeur//2, nbCasesY*largeur+37.5, "Temps restant: " + str(secLeft) + "s", couleur=couleur, taille = 20, tag = "timer", ancrage = 'w')
+	texte(largeur//2, nbCasesY*largeur+37.5, "Temps restant: " + str(minutes) + "min" + str(secondes), couleur=couleur, taille = 20, tag = "timer", ancrage = 'w')
 
 def instructions():
 	"""
 	Affiche sous forme de texte les actions que le joueur peut faire
 	"""
-	texte(largeur*6 +longueur_texte(secLeft), nbCasesY*largeur+12, "Commandes:", couleur='black', taille = 14, ancrage = 'w')
-	texte(largeur*6 +longueur_texte(secLeft) +27.5, nbCasesY*largeur+30, "s : Changer de pion à déplacer", couleur='black', taille = 12, ancrage = 'w')
-	texte(largeur*6 +longueur_texte(secLeft) +27.5, nbCasesY*largeur+50, "←↑→↓ : Déplacer le pion séléctionné", couleur='black', taille = 12, ancrage = 'w')
-	texte(largeur*6 +290 +longueur_texte(secLeft) +27.5, nbCasesY*largeur+30, "q : Quitter le jeu", couleur='black', taille = 12, ancrage = 'w')
-	texte(largeur*6 +290 +longueur_texte(secLeft) +27.5, nbCasesY*largeur+50, "d : Débug mode (on/off)", couleur='black', taille = 12, ancrage = 'w')
+	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min')-10, nbCasesY*largeur+12, "Commandes:", couleur='black', taille = 14, ancrage = 'w')
+	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+30, "s : Changer de pion à déplacer", couleur='black', taille = 12, ancrage = 'w')
+	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+50, "←↑→↓ : Déplacer le pion séléctionné", couleur='black', taille = 12, ancrage = 'w')
+	texte(largeur*6 +290 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+30, "q : Quitter le jeu", couleur='black', taille = 12, ancrage = 'w')
+	texte(largeur*6 +290 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+50, "d : Débug mode (on/off)", couleur='black', taille = 12, ancrage = 'w')
 
 def affichageDroit():
 	pionSelected(pionVisé)
@@ -402,8 +431,8 @@ def affichageDroit():
 	objetsLeft(sortieOn)
 
 def affichageBas():
-	timer(100, startTime)
-	ligne(largeur*5.3 +longueur_texte(secLeft), nbCasesY*largeur+12, largeur*5.3 +longueur_texte(secLeft), nbCasesY*largeur+65, couleur='black', epaisseur=3)
+	timer(180, startTime)
+	ligne(largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+12, largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+65, couleur='black', epaisseur=3)
 	instructions()
 
 def perdu():
@@ -418,54 +447,59 @@ def perdu():
 		break
 	ferme_fenetre()
 
-def gagner(sec):
+def gagner(min, sec):
 	"""
 	Si tous les pions sont sortis, on arrête la partie et on affiche les texte de fin
 	Partie gagnée.
 	"""
+	s = 60-sec
 	while 1 :
 		efface_tout()
 		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Vous avez gagné!", couleur="dark green", ancrage = "center", taille = 45)
-		texte((nbCasesX//2+1)*largeur, (nbCasesY//1.5)*largeur, "Félicitations, vous avez finit le jeu en " + str(sec) + "sec", couleur="black", ancrage = "center", taille = 25)
+		texte((nbCasesX//2+1)*largeur, (nbCasesY//1.5)*largeur, "Félicitations, vous avez finit le jeu en " + str(min) + "min" + str(s), couleur="black", ancrage = "center", taille = 25)
 		attente_clic()
 		break	
 	ferme_fenetre()
-
 
 # ----------------------- Main Program --------------------------- #
 if __name__ == '__main__':
 	# Initialisations variables
 	creationMap(16,10)
-	affichageMenu()
+	
+	while 1:
+		affichageMenu()
 
-	if choixMenu() == 'Règles':
-		attente_clic()
-		efface_tout()
-		texte(5, 25, "Règles du jeu:", couleur="red", ancrage="w")
+		if choixMenu() == 'Règles':
+			rules()
 
-	if choixMenu() == 'Jouer':
-		startTime = time.time()
-		sortieOn = False
-		pionVisé = 1
-		objetsOwn = 0
-		pionsInSortie = 0
-		debugMode = False
+		if choixMenu() == 'Quitter':
+			ferme_fenetre()
 
-		# Création entités
-		creationPion()
-		creationObjet()
-		creationSortie()
-		creationCaseVide(20)
+		if choixMenu() == 'Jouer':
+			startTime = time.time()
+			sortieOn = False
+			pionVisé = 1
+			objetsOwn = 0
+			pionsInSortie = 0
+			debugMode = False
+	
+			# Création entités
+			creationPion()
+			creationObjet()
+			creationSortie()
+			creationCaseVide(20)
+	
+			# Boucle principale
+			while 1:
+				affichageBas()
+				affichageDroit()
+				affichage()
+	
+				isWin(pionsInSortie, minutes, secondes)
+				sortieOn = isSortieOn(sortieOn)
+				debugMode = actionTouche(pionVisé, objetsOwn, pionsInSortie, debugMode)
+				
+				mise_a_jour()
+				efface_tout()
 
-		# Boucle principale
-		while 1:
-			affichageBas()
-			affichageDroit()
-			affichage()
-
-			isWin(pionsInSortie, secElapsed)
-			sortieOn = isSortieOn(sortieOn)
-			debugMode = movePion(pionVisé, objetsOwn, pionsInSortie, debugMode)
-			
-			mise_a_jour()
-			efface_tout()
+# GRISER L'IMAGE DU PION QUAND IL NE PEUT PLUS ETRE SELECTIONNER (quand il est sortit) #
