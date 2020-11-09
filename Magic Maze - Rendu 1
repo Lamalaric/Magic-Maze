@@ -126,6 +126,19 @@ def creationObjet():
 			idObjet += 1
 			objetsCrées += 1
 
+def creationSablier(n):
+	"""	
+	Définit la position de la sortie
+	"""
+	sablierCréée=0
+	while sablierCréée != n:
+		rdmY = randint(0,nbCasesY-1)
+		rdmX = randint(0,nbCasesX-1)
+	# On place un sablier sur une case libre.
+		if Plateau[rdmY][rdmX] == 0 :
+			Plateau[rdmY][rdmX] = 8
+			sablierCréée+=1
+
 def creationSortie():
 	"""	
 	Définit la position de la sortie
@@ -211,7 +224,7 @@ def actionTouche(player, objets, pionsSortis, debug):
 
 	Cette fonction s'occupe également de récupérer la touche appuyée et exécuter l'action correspondante.
 	"""
-	global touche, pionVisé, pionsInSortie
+	global touche, pionVisé, pionsInSortie, reverseTimer, a, secElapsed
 	dejaVu = False
 	touche = attente_touche_jusqua(1000)
 	choixMove = ['Left', 'Right', 'Up', 'Down']
@@ -250,6 +263,13 @@ def actionTouche(player, objets, pionsSortis, debug):
 							Plateau[yAxes][xAxes] = 0
 							pionsInSortie += 1
 							break
+						if Plateau[yAxes][xAxes-1] == 8 :				# Si case visée = sablier, inverse le sablier
+							Plateau[yAxes][xAxes-1] = player
+							Plateau[yAxes][xAxes] = 0							
+							reverseTimer = not reverseTimer
+							a = secElapsed
+							secElapsed = 0
+							break
 
 				## Aller à droite ##
 				if touche == 'Right':
@@ -266,6 +286,13 @@ def actionTouche(player, objets, pionsSortis, debug):
 							Plateau[yAxes][xAxes] = 0
 							pionsInSortie += 1
 							break
+						if Plateau[yAxes][xAxes+1] == 8 :				# Si case visée = sablier, inverse le sablier
+							Plateau[yAxes][xAxes+1] = player
+							Plateau[yAxes][xAxes] = 0							
+							reverseTimer = not reverseTimer
+							a = secElapsed
+							secElapsed = 0
+							break
 
 				## Aller en haut ##
 				if touche == 'Up':
@@ -281,6 +308,13 @@ def actionTouche(player, objets, pionsSortis, debug):
 						if Plateau[yAxes-1][xAxes] == 6 :				# Si sortie active, compteur pions sortis incrémenté de 1
 							Plateau[yAxes][xAxes] = 0
 							pionsInSortie += 1
+							break
+						if Plateau[yAxes-1][xAxes] == 8 :				# Si case visée = sablier, inverse le sablier
+							Plateau[yAxes-1][xAxes] = player
+							Plateau[yAxes][xAxes] = 0							
+							reverseTimer = not reverseTimer
+							a = secElapsed
+							secElapsed = 0
 							break
 
 				## Aller en bas ##
@@ -301,6 +335,14 @@ def actionTouche(player, objets, pionsSortis, debug):
 									Plateau[yAxes][xAxes] = 0
 									pionsInSortie += 1
 									break
+							if Plateau[yAxes+1][xAxes] == 8 :				# Si case visée = sablier, inverse le sablier
+								Plateau[yAxes+1][xAxes] = player
+								Plateau[yAxes][xAxes] = 0							
+								reverseTimer = not reverseTimer
+								a = secElapsed
+								secElapsed = 0
+								break
+
 	return debug
 
 # ---------- Partie visuelle ---------- #
@@ -309,7 +351,7 @@ def affichage() :
 	"""
 		Actualise l'affichage en fonction de chaque élément dans la matrice.
 		Si l'elem. de la matrice est 0 : c'est une case libre alors on affiche un simple rectangle.
-		Si l'elem. de la matrice est 5 : c'est la sortie alors on affiche l'image correspondante.
+		Si l'elem. de la matrice est 5, 6 : c'est la sortie alors on affiche l'image correspondante.
 		Si l'elem. de la matrice est 7 : c'est une case vide alors on affiche un rectangle foncé
 		Si l'elem. de la matrice est 1, 2, 3, 4 : c'est un pion alors on affiche l'image correspondante.
 		Affiche les objets tant que la sortie n'est pas active.
@@ -332,6 +374,17 @@ def affichage() :
 				image(locX, locY, 'Elf_pion_transp.gif', ancrage = 'center', tag = 'elf')
 			if Plateau[yAxes][xAxes] == 4 : 
 				image(locX, locY, 'Dwarf_pion_transp.gif', ancrage = 'center', tag = 'dwarf')
+			## Affiche sortie on ou off ##
+			if Plateau[yAxes][xAxes] == 5 : 
+				image(locX+1, locY, 'Vortex_transp_off.gif', ancrage = 'center', tag = 'exitOff')
+			if Plateau[yAxes][xAxes] == 6 : 
+				image(locX+1, locY, 'Vortex_transp_on.gif', ancrage = 'center', tag = 'exitOn')
+			## Affiche les cases vides ##
+			if Plateau[yAxes][xAxes] == 7 :
+				rectangle(xAxes*largeur, yAxes*largeur, xAxes*largeur+largeur, yAxes*largeur+largeur, remplissage = 'dark grey', tag = 'caseVide')
+			## Affiche les cases vides ##
+			if Plateau[yAxes][xAxes] == 8 :
+				image(locX+1, locY, 'sablierReverse2.gif', ancrage = 'center', tag = 'sablierReverse')
 			## Affiche les objets tant que la sortie n'est pas active ##
 			if yAxes == posObjets[0][0] and xAxes == posObjets[0][1]:	
 				if not sortieOn:
@@ -345,14 +398,6 @@ def affichage() :
 			if yAxes == posObjets[3][0] and xAxes == posObjets[3][1]:
 				if not sortieOn: 
 					image(locX, locY, 'Dwarf_objet_transp.gif', ancrage = 'center', tag = 'dwarfObj')
-			## Affiche sortie on ou off ##
-			if Plateau[yAxes][xAxes] == 5 : 
-				image(locX+1, locY, 'Vortex_transp_off.gif', ancrage = 'center', tag = 'exitOff')
-			if Plateau[yAxes][xAxes] == 6 : 
-				image(locX+1, locY, 'Vortex_transp_on.gif', ancrage = 'center', tag = 'exitOn')
-			## Affiche les cases vides ##
-			if Plateau[yAxes][xAxes] == 7 :
-				rectangle(xAxes*largeur, yAxes*largeur, xAxes*largeur+largeur, yAxes*largeur+largeur, remplissage = 'dark grey', tag = 'caseVide')
 		x = 0
 		y += largeur
 
@@ -396,14 +441,24 @@ def objetsLeft(sortie):
 				if yAxes == posObjets[3][0] and xAxes == posObjets[3][1]:
 					efface('DwarfObjetPrit')
 
-def timer(seconde, startTime) :
+def timer(seconde, startTime, etatReverse) :
 	"""
 	Affiche un timer décroissant en secondes, depuis le nombre rentré en paramètre.
 	"""
-	global minutes, secondes
-	secElapsed = int((time.time() - startTime)) # Secondes écoulées depuis le début du programme
-	secLeft = seconde - secElapsed				# Secondes restantes
+	global minutes, secondes, secElapsed
+	# secLeft = seconde - secElapsed				# Secondes restantes
 	couleur = 'dark green'
+
+	if etatReverse == False:
+		secElapsed = int((time.time() - (startTime+a*2) )) 	# Secondes écoulées depuis le début du programme
+		secLeft = seconde - secElapsed			# Secondes restantes
+
+	if etatReverse == True:
+		secLeft = a - secElapsed
+		secElapsed = int((time.time() - (startTime+a) ))
+	print("Seconde écoulées: ", secElapsed)
+	print("Secondes objet prit: ", a)
+
 	# Conversion du temps en minutes:secondes
 	minutes = secLeft // 60
 	secondes = secLeft - minutes*60
@@ -412,6 +467,9 @@ def timer(seconde, startTime) :
 		perdu()
 	if minutes == 0 and secondes < 30:			# Si - de 30sec restantes : couleur rouge
 		couleur = 'red'
+
+	# print(secLeft)
+	# print(secElapsed)
 	#Affichage du temps restant en secondes
 	texte(largeur//2, nbCasesY*largeur+37.5, "Temps restant: " + str(minutes) + "min" + str(secondes), couleur=couleur, taille = 20, tag = "timer", ancrage = 'w')
 
@@ -431,7 +489,7 @@ def affichageDroit():
 	objetsLeft(sortieOn)
 
 def affichageBas():
-	timer(180, startTime)
+	timer(32, startTime, reverseTimer)
 	ligne(largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+12, largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+65, couleur='black', epaisseur=3)
 	instructions()
 
@@ -465,41 +523,41 @@ def gagner(min, sec):
 if __name__ == '__main__':
 	# Initialisations variables
 	creationMap(16,10)
-	
-	while 1:
-		affichageMenu()
+	affichageMenu()
+	a = 0
 
-		if choixMenu() == 'Règles':
-			rules()
+	if choixMenu() == 'Règles':
+		rules()
 
-		if choixMenu() == 'Quitter':
-			ferme_fenetre()
+	if choixMenu() == 'Quitter':
+		ferme_fenetre()
 
-		if choixMenu() == 'Jouer':
-			startTime = time.time()
-			sortieOn = False
-			pionVisé = 1
-			objetsOwn = 0
-			pionsInSortie = 0
-			debugMode = False
-	
-			# Création entités
-			creationPion()
-			creationObjet()
-			creationSortie()
-			creationCaseVide(20)
-	
-			# Boucle principale
-			while 1:
-				affichageBas()
-				affichageDroit()
-				affichage()
-	
-				isWin(pionsInSortie, minutes, secondes)
-				sortieOn = isSortieOn(sortieOn)
-				debugMode = actionTouche(pionVisé, objetsOwn, pionsInSortie, debugMode)
-				
-				mise_a_jour()
-				efface_tout()
+	if choixMenu() == 'Jouer':
+		startTime = time.time()
+		sortieOn = False
+		pionVisé = 1
+		objetsOwn = 0
+		pionsInSortie = 0
+		debugMode = False
+		reverseTimer = False
+		
+		# Création entités
+		creationPion()
+		creationObjet()
+		creationSablier(3)
+		creationSortie()
+		creationCaseVide(20)
+		
+		# Boucle principale
+		while 1:			
+			affichageBas()
+			affichageDroit()
+			affichage()
+			isWin(pionsInSortie, minutes, secondes)
+			sortieOn = isSortieOn(sortieOn)
+			debugMode = actionTouche(pionVisé, objetsOwn, pionsInSortie, debugMode)
+			
+			mise_a_jour()
+			efface_tout()
 
 # GRISER L'IMAGE DU PION QUAND IL NE PEUT PLUS ETRE SELECTIONNER (quand il est sortit) #
