@@ -63,6 +63,22 @@ def rules():
 	efface_tout()
 
 	texte(5, 25, "Règles du jeu:", couleur="red", ancrage="w")
+	texte(5, 95, "Le jeu se compose de 4 personnages, de 4 objets et d'une porte de sortie. ",couleur='black', ancrage='w', taille=12 )
+	texte(5, 130, "Vous pouvez controler les 4 personnages mais uniquement un à la fois. Chaque personnage", couleur='black', ancrage='w', taille=12)
+	texte(5, 165, "possède son propre objet.", couleur='black', ancrage='w', taille=12)
+	texte(5, 200, "Le but est de récupérer tous les objets puis de sortir.", couleur='black', ancrage='w', taille=12)
+	texte(5, 235, "Au départ, la porte de sortie est vérouillée. Pour permettre son ouverture, chaque ", couleur='black', ancrage='w', taille=12)
+	texte(5, 270, "personnage doit se trouver sur la case de l'objet lui correspondant, cela revient à récupérer ", couleur='black', ancrage='w', taille=12)
+	texte(5, 305, "tous les objets Le mage possède la fiole, l'elfe possède l'arc, le personnage rouge", couleur='black', ancrage='w', taille=12)
+	texte(5, 335," possède la hache et le barbare possède l'épée.", couleur='black', ancrage='w',taille=12)
+	texte(5, 390,"ATTENTION, vous disposez d'un temps limité de 3mn. Si vous le dépassez c'est GAME OVER.", couleur='red', ancrage='w', taille=12)
+	texte(5, 425,"Si vous êtes proche du temps écoulée des sabliers sont disposés sur le plateau. Ils peuvent", couleur='black', ancrage='w', taille=12)
+	texte(5, 460, "vous permettre d'inverser le temps, ce qui peut être également un handicap s'il vous reste", couleur='black',ancrage='w',taille=12)
+	texte(5, 495,"beaucoup de temps.", couleur='black', ancrage='w', taille=12)
+	texte(5, 540,"MAINTENANT QUE VOUS SAVEZ TOUT !! BONNE CHANCE JEUNES VOLEURS", couleur='dark blue', ancrage='w',taille=12)
+
+
+
 
 
 	rectangle(largeur*(nbCasesX-2),largeur/2,largeur*nbCasesX +42.5, largeur*1.5, remplissage = 'black')
@@ -369,7 +385,7 @@ def affichage() :
 			if Plateau[yAxes][xAxes] == 1 :
 				image(locX, locY, 'Warrior_pion_transp.gif', ancrage = 'center', tag = 'warrior')
 			if Plateau[yAxes][xAxes] == 2 : 
-				image(locX, locY, 'Wizzard_pion_transp.gif', ancrage = 'center', tag = 'wizzard')
+				image(locX, locY, 'wizzard_pion_transp.gif', ancrage = 'center', tag = 'wizzard')
 			if Plateau[yAxes][xAxes] == 3 : 
 				image(locX, locY, 'Elf_pion_transp.gif', ancrage = 'center', tag = 'elf')
 			if Plateau[yAxes][xAxes] == 4 : 
@@ -409,7 +425,7 @@ def pionSelected(i):
 	cercle(nbCasesX*largeur +37, largeur*1 +(i-1)*largeur, 25, epaisseur = 2, couleur = 'red')
 	#Affiche les icônes propres à chaque pion
 	image(nbCasesX*largeur +37, largeur*1, 'Warrior_pion_transp.gif', ancrage = 'center')
-	image(nbCasesX*largeur +37, largeur*2, 'Wizzard_pion_transp.gif', ancrage = 'center')
+	image(nbCasesX*largeur +37, largeur*2, 'wizzard_pion_transp.gif', ancrage = 'center')
 	image(nbCasesX*largeur +37, largeur*3, 'Elf_pion_transp.gif', ancrage = 'center')
 	image(nbCasesX*largeur +37, largeur*4 -6, 'Dwarf_pion_transp.gif', ancrage = 'center')
 
@@ -489,7 +505,7 @@ def affichageDroit():
 	objetsLeft(sortieOn)
 
 def affichageBas():
-	timer(32, startTime, reverseTimer)
+	timer(180, startTime, reverseTimer)
 	ligne(largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+12, largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+65, couleur='black', epaisseur=3)
 	instructions()
 
