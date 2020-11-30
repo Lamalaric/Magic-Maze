@@ -89,7 +89,7 @@ def nombreJoueurs():
 
 	texte(largeur*nbCasesX/2+100, largeur*4, "Choisissez une action", couleur="black", taille=30, ancrage="n")
 	## Cadre ##
-	rectangle(largeur*2, largeur*3.5, (nbCasesX*largeur+200)-(largeur*2), (nbCasesY*largeur+75)-(largeur*3), epaisseur = 3, couleur = 'red')
+	rectangle(largeur*2, largeur*3.5, (nbCasesX*largeur+200)-(largeur*2), (nbCasesY*largeur+75)-(largeur*3), epaisseur = 3, couleur = 'red', tag = 'cadreMenu')
 	## Bouton jouer ##
 	rectangle(largeur*4, largeur*7, (nbCasesX*largeur)/2, largeur*9, remplissage="green", tag = 'startButton')
 	texte(largeur *6.5, largeur*7.5, "1 joueur", couleur="white", taille=25, ancrage="n", tag = 'start')
@@ -102,6 +102,7 @@ def nombreJoueurs():
 	xy2_2j = largeur*nbCasesX, largeur*9
 
 	nbrJoueurs = choixJoueur()
+	efface('cadreMenu')
 	if nbrJoueurs == '1 joueur':
 		return '1j'
 	if nbrJoueurs == '3 joueurs':
@@ -214,6 +215,8 @@ def creationObjet():
 			idObjet += 1
 			objetsCrées += 1
 
+	posObjets = [(1,1),(5,14),(15,5),(10,12)]
+
 def creationSablier(n):
 	"""	
 	Définit la position de la sortie
@@ -239,6 +242,20 @@ def creationSortie():
 		if Plateau[rdmY][rdmX] == 0 :
 			Plateau[rdmY][rdmX] = 5
 			sortieCréée+=1
+
+def creationMur(n) : 
+	"""
+	Génère n murs dans la matrice.
+	Les joueurs ne peuvent pas traverser un mur.
+	"""
+	mursCrées = 0
+	while mursCrées != n :
+		rdmY = randint(0,nbCasesY-1)
+		rdmX = randint(0,nbCasesX-1)
+		# On ajoute un mur sur une case libre.
+		if Plateau[rdmY][rdmX] == 0 :
+			Plateau[rdmY][rdmX] = 20
+			mursCrées += 1
 
 def creationCaseVide(n) : 
 	"""
@@ -267,32 +284,6 @@ def pionAimed1(pionChoisi1):
 		pionVisé11 = 1
 	return pionVisé11
 
-def pionAimed2(pionChoisi2):
-	"""
-	Fonctionne avec la fonction pionSelected2(i), qui permet de choisir le pion à actionner.
-	Elle renvoie le pion séléctionné à bouger.
-	"""
-	global pionVisé2
-	pionVisé2 = pionChoisi2
-	pionVisé2 += 1
-	# Lorsque appelé, le pion à actionner sera le supérieur au précédent
-	if pionVisé2 > 4:
-		pionVisé2 = 1
-	return pionVisé2
-
-def pionAimed3(pionChoisi3):
-	"""
-	Fonctionne avec la fonction pionSelected3(i), qui permet de choisir le pion à actionner.
-	Elle renvoie le pion séléctionné à bouger.
-	"""
-	global pionVisé3
-	pionVisé3 = pionChoisi3
-	pionVisé3 += 1
-	# Lorsque appelé, le pion à actionner sera le supérieur au précédent
-	if pionVisé3 > 4:
-		pionVisé3 = 1
-	return pionVisé3
-
 def isSortieOn(etatSortie):
 	"""
 	Active la sortie si tous les joueurs sont sur leur case objet.
@@ -320,6 +311,8 @@ def isSortieOn(etatSortie):
 				for xAxes in range(nbCasesX):
 					if Plateau[yAxes][xAxes] == 5:
 						Plateau[yAxes][xAxes] = 6
+						efface('exitOff')
+						image(12*largeur+26, 3*largeur-25, 'Vortex_transp_on.gif', ancrage = 'center', tag = 'exitOn')
 						return True
 		return False
 	return True
@@ -350,314 +343,229 @@ def actionTouche(player1, player2, player3, objets, pionsSortis, debug):
 	# Change de pion à bouger pour le J1 si la touche appuyée est 'e'
 	if touche == 'e' :
 		pionVisé1 = pionAimed1(pionVisé1)
-	# Change de pion à bouger pour le J2 si la touche appuyée est 'r'
-	if touche == 'r' :
-		pionVisé2 = pionAimed2(pionVisé2)
-	# Change de pion à bouger pour le J3 si la touche appuyée est 't'
-	if touche == 't' :
-		pionVisé3 = pionAimed3(pionVisé3)
+	# # Change de pion à bouger pour le J2 si la touche appuyée est 'r'
+	# if touche == 'r' :
+	# 	pionVisé2 = pionAimed2(pionVisé2)
+	# # Change de pion à bouger pour le J3 si la touche appuyée est 't'
+	# if touche == 't' :
+	# 	pionVisé3 = pionAimed3(pionVisé3)
 	# Mode debug on/off
 	if touche == 'F1':
 		debug = not debug
 	if debug == True :		# Choix des mouvements / pions à actionner aléatoire
 		touche = choixMove[randint(0,3)]
 		player1 = choixPion[randint(0,3)]
+	# Action à faire à chaque touche
+	if touche != None:
+		for yAxes in range(nbCasesY):
+			for xAxes in range(nbCasesX):
+				if Plateau[yAxes][xAxes] == player1 or Plateau[yAxes][xAxes] == player1+20 or Plateau[yAxes][xAxes] == player1+25:
 
-	for yAxes in range(nbCasesY):
-		for xAxes in range(nbCasesX):
-			if Plateau[yAxes][xAxes] == player1 :
+					## Aller à gauche ##
+					if touche == 'Left':
+						if xAxes > 0 :									# Si case visée is not 'bord du plateau'
+							if Plateau[yAxes][xAxes] == player1+20:			# Si c'est un pion sur un mur horizontal
+								if Plateau[yAxes][xAxes-1] == 0:				# Si case visée = vide
+									Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1, 20
+									break
+								if Plateau[yAxes][xAxes-1] == 20:				# Si case visée = mur horizontal
+									Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1+20, 20
+									break
+								if Plateau[yAxes][xAxes-1] == player1+10:		# Si case visée = objet
+									Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1, 20
+									break
+							if Plateau[yAxes][xAxes] == player1+25:			# Si c'est un pion sur un mur vertical
+								if Plateau[yAxes][xAxes-1] == 0:				# Si case visée = vide
+									Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1, 25
+									
+								if Plateau[yAxes][xAxesbreak-1] == 20:				# Si case visée = mur horizontal
+									Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1+20, 25
+									break
+								if Plateau[yAxes][xAxes-1] == 25:				# Si case visée = mur vertical
+									Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1+25, 25
+									break
+								if Plateau[yAxes][xAxes-1] == player1+10:		# Si case visée = objet
+									Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1, 25
+									break
+								if Plateau[yAxes][xAxes-1] == 6 :				# Si case visée = sortie active
+									Plateau[yAxes][xAxes] = 25
+									pionsInSortie += 1
+									break
+								if Plateau[yAxes][xAxes-1] == 8 :				# Si case visée = sablier
+									Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1, 25
+									reverseTimer = not reverseTimer
+									a = secElapsed
+									secElapsed = 0
+									break
+							if Plateau[yAxes][xAxes-1] == 0 :				# Si case visée = vide
+								Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1, 0
+								break
+							if Plateau[yAxes][xAxes-1] == player1+10 :		# Si case visée = objet
+								Plateau[yAxes][xAxes-1],Plateau[yAxes][xAxes] = player1, 0
+								break
+							if Plateau[yAxes][xAxes-1] == 6 :				# Si case visée = sortie active
+								pionsInSortie += 1
+								break
+							if Plateau[yAxes][xAxes-1] == 8 :				# Si case visée = sablier
+								Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1, 0
+								reverseTimer = not reverseTimer
+								a = secElapsed
+								secElapsed = 0
+								break
+							if Plateau[yAxes][xAxes-1] == 20:				# Si case visée = mur horizontal
+								Plateau[yAxes][xAxes-1], Plateau[yAxes][xAxes] = player1+20, 0
+								break
 
-				## Aller à gauche ##
-				if touche == 'Left':
-					if xAxes > 0 :									# Si case visée is not 'bord du plateau'
-						if Plateau[yAxes][xAxes-1] == 0 :				# Si case vide
-							Plateau[yAxes][xAxes-1] = player1
-							Plateau[yAxes][xAxes] = 0
-							break
-						if Plateau[yAxes][xAxes-1] == player1+10 :		# Si case visée = objet, compteur d'objets incrémenté de 1
-							Plateau[yAxes][xAxes-1] = player1
-							Plateau[yAxes][xAxes] = 0
-							debug = False
-							break
-						if Plateau[yAxes][xAxes-1] == 6 :				# Si case visée = sortie active, compteur pions sortis incrémenté de 1
-							Plateau[yAxes][xAxes] = 0
-							pionsInSortie += 1
-							break
-						if Plateau[yAxes][xAxes-1] == 8 :				# Si case visée = sablier, inverse le sablier
-							Plateau[yAxes][xAxes-1] = player1
-							Plateau[yAxes][xAxes] = 0							
-							reverseTimer = not reverseTimer
-							a = secElapsed
-							secElapsed = 0
-							break
+					## Aller à droite ##
+					if touche == 'Right':
+						if xAxes < nbCasesX-1 :							# Si case visée is not 'bord du plateau'
+							if Plateau[yAxes][xAxes] == player1+20:			# Si c'est un pion sur un mur horizontal
+								if Plateau[yAxes][xAxes+1] == 0:				# Si case visée = vide
+									Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1, 20
+									break
+								if Plateau[yAxes][xAxes+1] == 20:				# Si case visée = mur horizontal
+									Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1+20, 20
+									break
+								if Plateau[yAxes][xAxes+1] == 25:				# Si case visée = mur vertical
+									Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1+25, 20
+									break
+								if Plateau[yAxes][xAxes+1] == player1+10 :		# Si case visée = objet
+									Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1, 20
+									break
+								if Plateau[yAxes][xAxes+1] == 8 :				# Si case visée = sablier
+									Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1, 20
+									reverseTimer = not reverseTimer
+									a = secElapsed
+									secElapsed = 0
+									break
+							if Plateau[yAxes][xAxes] == player1+25:			# Si c'est un pion sur un mur verical
+								break
+							if Plateau[yAxes][xAxes+1] == 0:				# Si case visée = vide
+								Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1, 0
+								break
+							if Plateau[yAxes][xAxes+1] == player1+10 :		# Si case visée = objet
+								Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1, 0
+								break
+							if Plateau[yAxes][xAxes+1] == 6 :				# Si case visée = sortie active
+								Plateau[yAxes][xAxes] = 0
+								pionsInSortie += 1
+								break
+							if Plateau[yAxes][xAxes+1] == 8 :				# Si case visée = sablier
+								Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1, 0
+								reverseTimer = not reverseTimer
+								a = secElapsed
+								secElapsed = 0
+								break
+							if Plateau[yAxes][xAxes+1] == 20 :				# Si case visée = mur horizontal
+								Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1+20, 0
+								break
+							if Plateau[yAxes][xAxes+1] == 25 :				# Si case visée = mur vertical
+								Plateau[yAxes][xAxes+1], Plateau[yAxes][xAxes] = player1+25, 0
+								break
 
-				## Aller à droite ##
-				if touche == 'Right':
-					if xAxes < nbCasesX-1 :							# Si case visée is not 'bord du plateau'
-						if Plateau[yAxes][xAxes+1] == 0 :				# Si case vide
-							Plateau[yAxes][xAxes+1] = player1
-							Plateau[yAxes][xAxes] = 0
-							break
-						if Plateau[yAxes][xAxes+1] == player1+10 :		# Si case visée = objet, compteur d'objets incrémenté de 1
-							Plateau[yAxes][xAxes+1] = player1
-							Plateau[yAxes][xAxes] = 0
-							break
-						if Plateau[yAxes][xAxes+1] == 6 :				# Si case visée = sortie active, compteur pions sortis incrémenté de 1
-							Plateau[yAxes][xAxes] = 0
-							pionsInSortie += 1
-							break
-						if Plateau[yAxes][xAxes+1] == 8 :				# Si case visée = sablier, inverse le sablier
-							Plateau[yAxes][xAxes+1] = player1
-							Plateau[yAxes][xAxes] = 0							
-							reverseTimer = not reverseTimer
-							a = secElapsed
-							secElapsed = 0
-							break
+					## Aller en haut ##
+					if touche == 'Up':
+						if yAxes > 0 :									# Si case visée is not 'bord du plateau'
+							if Plateau[yAxes][xAxes] == player1+20:			# Si c'est un pion sur un mur horizontal
+								if Plateau[yAxes-1][xAxes] == 0:				# Si case visée = vide
+									Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1, 20
+									break
+								if Plateau[yAxes-1][xAxes] == 25:				# Si case visée = mur vertical
+									Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1+25, 20
+									break
+								if Plateau[yAxes-1][xAxes] == player1+10 :		# Si case visée = objet
+									Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1, 20
+									break
+								if Plateau[yAxes-1][xAxes] == 8 :				# Si case visée = sablier
+									Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1, 20
+									reverseTimer = not reverseTimer
+									a = secElapsed
+									secElapsed = 0
+									break
+							if Plateau[yAxes][xAxes] == player1+25:			# Si c'est un pion sur un mur vertical
+								if Plateau[yAxes-1][xAxes] == 0:				# Si case visée = vide
+									Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1, 25
+									break
+								if Plateau[yAxes-1][xAxes] == 25:				# Si case visée = mur vertical
+									Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1+25, 25
+									break
+								if Plateau[yAxes-1][xAxes] == 8 :				# Si case visée = sablier
+									Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1, 25
+									reverseTimer = not reverseTimer
+									a = secElapsed
+									secElapsed = 0
+									break
+							if Plateau[yAxes-1][xAxes] == 0:				# Si case visée = vide
+								Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1, 0
+								break
+							if Plateau[yAxes-1][xAxes] == player1+10 :		# Si case visée = objet
+								Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1, 0
+								break
+							if Plateau[yAxes-1][xAxes] == 6 :				# Si case visée = sortie active
+								Plateau[yAxes][xAxes] = 0
+								pionsInSortie += 1
+								break
+							if Plateau[yAxes-1][xAxes] == 8 :				# Si case visée = sablier
+								Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1, 0
+								reverseTimer = not reverseTimer
+								a = secElapsed
+								secElapsed = 0
+								break
+							if Plateau[yAxes-1][xAxes] == 25 :				# Si case visée = mur vertical
+								Plateau[yAxes-1][xAxes], Plateau[yAxes][xAxes] = player1+25, 0
+								break
 
-				## Aller en haut ##
-				if touche == 'Up':
-					if yAxes > 0 :									# Si case visée is not 'bord du plateau'
-						if Plateau[yAxes-1][xAxes] == 0:				# Si case vide
-							Plateau[yAxes-1][xAxes] = player1
-							Plateau[yAxes][xAxes] = 0
-							break
-						if Plateau[yAxes-1][xAxes] == player1+10 :		# Si objet, compteur d'objets incrémenté de 1
-							Plateau[yAxes-1][xAxes] = player1
-							Plateau[yAxes][xAxes] = 0
-							break
-						if Plateau[yAxes-1][xAxes] == 6 :				# Si sortie active, compteur pions sortis incrémenté de 1
-							Plateau[yAxes][xAxes] = 0
-							pionsInSortie += 1
-							break
-						if Plateau[yAxes-1][xAxes] == 8 :				# Si case visée = sablier, inverse le sablier
-							Plateau[yAxes-1][xAxes] = player1
-							Plateau[yAxes][xAxes] = 0							
-							reverseTimer = not reverseTimer
-							a = secElapsed
-							secElapsed = 0
-							break
-
-				## Aller en bas ##
-				if touche == 'Down':								
-					if yAxes < nbCasesY-1 :								# Si case visée is not 'bord du plateau'
-						if dejaVu == False :
-							if Plateau[yAxes+1][xAxes] == 0 :				# Si case vide
-									Plateau[yAxes+1][xAxes] = player1
-									Plateau[yAxes][xAxes] = 0
+					## Aller en bas ##
+					if touche == 'Down':
+						if yAxes < nbCasesY-1:								# Si case visée is not 'bord du plateau'
+							if dejaVu == False :
+								if Plateau[yAxes][xAxes] == player1+25:			# Si c'est un pion sur un mur vertical
+									if Plateau[yAxes+1][xAxes] == 0:				# Si case visée = vide
+										Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1, 25
+										dejaVu = True
+										break
+									if Plateau[yAxes+1][xAxes] == 25:				# Si case visée = mur vertical
+										Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1+25, 25
+										dejaVu = True
+										break
+									if Plateau[yAxes+1][xAxes] == 20:				# Si case visée = mur horizontal
+										Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1+20, 25
+										dejaVu = True
+										break
+									if Plateau[yAxes+1][xAxes] == player1+10 :		# Si case visée = objet
+										Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1, 25
+										dejaVu = True
+										break
+								if Plateau[yAxes][xAxes] == player1+20:			# Si c'est un pion sur un mur horizontal
+									break
+								if Plateau[yAxes+1][xAxes] == 0 :				# Si case visée = vide
+									if Plateau[yAxes][xAxes] != player1+20:			# Si case != pion + mur vertical
+										Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1, 0
+										dejaVu = True
+										break
+								if Plateau[yAxes+1][xAxes] == player1+10 :		# Si case visée = objet
+									Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1, 0
 									dejaVu = True
 									break
-							if Plateau[yAxes+1][xAxes] == player1+10 :		# Si objet, compteur d'objets incrémenté de 1
-									Plateau[yAxes+1][xAxes] = player1
-									Plateau[yAxes][xAxes] = 0
-									dejaVu = True
-									break
-							if Plateau[yAxes+1][xAxes] == 6 :				# Si sortie active, compteur pions sortis incrémenté de 1
+								if Plateau[yAxes+1][xAxes] == 6 :				# Si case visée = sortie active
 									Plateau[yAxes][xAxes] = 0
 									pionsInSortie += 1
 									break
-							if Plateau[yAxes+1][xAxes] == 8 :				# Si case visée = sablier, inverse le sablier
-								Plateau[yAxes+1][xAxes] = player1
-								Plateau[yAxes][xAxes] = 0							
-								reverseTimer = not reverseTimer
-								a = secElapsed
-								secElapsed = 0
-								break
-			if nbrJoueurs == '3 joueurs':
-				if Plateau[yAxes][xAxes] == player2 :
-
-					## Aller à gauche ##
-					if touche == 'q':
-						if xAxes > 0 :									# Si case visée is not 'bord du plateau'
-							if Plateau[yAxes][xAxes-1] == 0 :				# Si case vide
-								Plateau[yAxes][xAxes-1] = player2
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes][xAxes-1] == player2+10 :		# Si case visée = objet, compteur d'objets incrémenté de 1
-								Plateau[yAxes][xAxes-1] = player2
-								Plateau[yAxes][xAxes] = 0
-								debug = False
-								break
-							if Plateau[yAxes][xAxes-1] == 6 :				# Si case visée = sortie active, compteur pions sortis incrémenté de 1
-								Plateau[yAxes][xAxes] = 0
-								pionsInSortie += 1
-								break
-							if Plateau[yAxes][xAxes-1] == 8 :				# Si case visée = sablier, inverse le sablier
-								Plateau[yAxes][xAxes-1] = player2
-								Plateau[yAxes][xAxes] = 0							
-								reverseTimer = not reverseTimer
-								a = secElapsed
-								secElapsed = 0
-								break
-
-					## Aller à droite ##
-					if touche == 'd':
-						if xAxes < nbCasesX-1 :							# Si case visée is not 'bord du plateau'
-							if Plateau[yAxes][xAxes+1] == 0 :				# Si case vide
-								Plateau[yAxes][xAxes+1] = player2
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes][xAxes+1] == player2+10 :		# Si case visée = objet, compteur d'objets incrémenté de 1
-								Plateau[yAxes][xAxes+1] = player2
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes][xAxes+1] == 6 :				# Si case visée = sortie active, compteur pions sortis incrémenté de 1
-								Plateau[yAxes][xAxes] = 0
-								pionsInSortie += 1
-								break
-							if Plateau[yAxes][xAxes+1] == 8 :				# Si case visée = sablier, inverse le sablier
-								Plateau[yAxes][xAxes+1] = player2
-								Plateau[yAxes][xAxes] = 0							
-								reverseTimer = not reverseTimer
-								a = secElapsed
-								secElapsed = 0
-								break
-
-					## Aller en haut ##
-					if touche == 'z':
-						if yAxes > 0 :									# Si case visée is not 'bord du plateau'
-							if Plateau[yAxes-1][xAxes] == 0:				# Si case vide
-								Plateau[yAxes-1][xAxes] = player2
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes-1][xAxes] == player2+10 :		# Si objet, compteur d'objets incrémenté de 1
-								Plateau[yAxes-1][xAxes] = player2
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes-1][xAxes] == 6 :				# Si sortie active, compteur pions sortis incrémenté de 1
-								Plateau[yAxes][xAxes] = 0
-								pionsInSortie += 1
-								break
-							if Plateau[yAxes-1][xAxes] == 8 :				# Si case visée = sablier, inverse le sablier
-								Plateau[yAxes-1][xAxes] = player2
-								Plateau[yAxes][xAxes] = 0							
-								reverseTimer = not reverseTimer
-								a = secElapsed
-								secElapsed = 0
-								break
-
-					## Aller en bas ##
-					if touche == 's':								
-						if yAxes < nbCasesY-1 :								# Si case visée is not 'bord du plateau'
-							if dejaVu == False :
-								if Plateau[yAxes+1][xAxes] == 0 :				# Si case vide
-										Plateau[yAxes+1][xAxes] = player2
-										Plateau[yAxes][xAxes] = 0
-										dejaVu = True
-										break
-								if Plateau[yAxes+1][xAxes] == player1+10 :		# Si objet, compteur d'objets incrémenté de 1
-										Plateau[yAxes+1][xAxes] = player2
-										Plateau[yAxes][xAxes] = 0
-										dejaVu = True
-										break
-								if Plateau[yAxes+1][xAxes] == 6 :				# Si sortie active, compteur pions sortis incrémenté de 1
-										Plateau[yAxes][xAxes] = 0
-										pionsInSortie += 1
-										break
-								if Plateau[yAxes+1][xAxes] == 8 :				# Si case visée = sablier, inverse le sablier
-									Plateau[yAxes+1][xAxes] = player2
-									Plateau[yAxes][xAxes] = 0							
+								if Plateau[yAxes+1][xAxes] == 8 :				# Si case visée = sablier
+									Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1, 0
 									reverseTimer = not reverseTimer
 									a = secElapsed
 									secElapsed = 0
+									dejaVu = True
 									break
-				if Plateau[yAxes][xAxes] == player3 :
-
-					## Aller à gauche ##
-					if touche == '4':
-						if xAxes > 0 :									# Si case visée is not 'bord du plateau'
-							if Plateau[yAxes][xAxes-1] == 0 :				# Si case vide
-								Plateau[yAxes][xAxes-1] = player3
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes][xAxes-1] == player3+10 :		# Si case visée = objet, compteur d'objets incrémenté de 1
-								Plateau[yAxes][xAxes-1] = player3
-								Plateau[yAxes][xAxes] = 0
-								debug = False
-								break
-							if Plateau[yAxes][xAxes-1] == 6 :				# Si case visée = sortie active, compteur pions sortis incrémenté de 1
-								Plateau[yAxes][xAxes] = 0
-								pionsInSortie += 1
-								break
-							if Plateau[yAxes][xAxes-1] == 8 :				# Si case visée = sablier, inverse le sablier
-								Plateau[yAxes][xAxes-1] = player3
-								Plateau[yAxes][xAxes] = 0							
-								reverseTimer = not reverseTimer
-								a = secElapsed
-								secElapsed = 0
-								break
-
-					## Aller à droite ##
-					if touche == '6':
-						if xAxes < nbCasesX-1 :							# Si case visée is not 'bord du plateau'
-							if Plateau[yAxes][xAxes+1] == 0 :				# Si case vide
-								Plateau[yAxes][xAxes+1] = player3
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes][xAxes+1] == player3+10 :		# Si case visée = objet, compteur d'objets incrémenté de 1
-								Plateau[yAxes][xAxes+1] = player3
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes][xAxes+1] == 6 :				# Si case visée = sortie active, compteur pions sortis incrémenté de 1
-								Plateau[yAxes][xAxes] = 0
-								pionsInSortie += 1
-								break
-							if Plateau[yAxes][xAxes+1] == 8 :				# Si case visée = sablier, inverse le sablier
-								Plateau[yAxes][xAxes+1] = player3
-								Plateau[yAxes][xAxes] = 0							
-								reverseTimer = not reverseTimer
-								a = secElapsed
-								secElapsed = 0
-								break
-
-					## Aller en haut ##
-					if touche == '8':
-						if yAxes > 0 :									# Si case visée is not 'bord du plateau'
-							if Plateau[yAxes-1][xAxes] == 0:				# Si case vide
-								Plateau[yAxes-1][xAxes] = player3
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes-1][xAxes] == player3+10 :		# Si objet, compteur d'objets incrémenté de 1
-								Plateau[yAxes-1][xAxes] = player3
-								Plateau[yAxes][xAxes] = 0
-								break
-							if Plateau[yAxes-1][xAxes] == 6 :				# Si sortie active, compteur pions sortis incrémenté de 1
-								Plateau[yAxes][xAxes] = 0
-								pionsInSortie += 1
-								break
-							if Plateau[yAxes-1][xAxes] == 8 :				# Si case visée = sablier, inverse le sablier
-								Plateau[yAxes-1][xAxes] = player3
-								Plateau[yAxes][xAxes] = 0							
-								reverseTimer = not reverseTimer
-								a = secElapsed
-								secElapsed = 0
-								break
-
-					## Aller en bas ##
-					if touche == '5':								
-						if yAxes < nbCasesY-1 :								# Si case visée is not 'bord du plateau'
-							if dejaVu == False :
-								if Plateau[yAxes+1][xAxes] == 0 :				# Si case vide
-										Plateau[yAxes+1][xAxes] = player3
-										Plateau[yAxes][xAxes] = 0
-										dejaVu = True
-										break
-								if Plateau[yAxes+1][xAxes] == player1+10 :		# Si objet, compteur d'objets incrémenté de 1
-										Plateau[yAxes+1][xAxes] = player3
-										Plateau[yAxes][xAxes] = 0
-										dejaVu = True
-										break
-								if Plateau[yAxes+1][xAxes] == 6 :				# Si sortie active, compteur pions sortis incrémenté de 1
-										Plateau[yAxes][xAxes] = 0
-										pionsInSortie += 1
-										break
-								if Plateau[yAxes+1][xAxes] == 8 :				# Si case visée = sablier, inverse le sablier
-									Plateau[yAxes+1][xAxes] = player3
-									Plateau[yAxes][xAxes] = 0							
-									reverseTimer = not reverseTimer
-									a = secElapsed
-									secElapsed = 0
+								if Plateau[yAxes+1][xAxes] == 20 :				# Si case visée = mur horizontal
+									Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1+20, 0
+									dejaVu = True
 									break
-
+								if Plateau[yAxes+1][xAxes] == 25 : 				# Si case visée = mur vertical
+									Plateau[yAxes+1][xAxes], Plateau[yAxes][xAxes] = player1+25, 0
+									dejaVu = True
+									break
 	return debug
 
 # ---------- Partie visuelle ---------- #
@@ -672,49 +580,80 @@ def affichage() :
 		Affiche les objets tant que la sortie n'est pas active.
 	"""
 	x, y = 0, 0
-	for yAxes in range(nbCasesY):
-		locY = yAxes*largeur-largeur/2+largeur
-		for xAxes in range(nbCasesX):
-			locX = xAxes*largeur-largeur/2+largeur
-			## Affiche les cases libres ##
-			rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
-			# image(x+largeur//2, y+largeur//2, 'ground.gif', ancrage = 'center')
-			x += largeur
-			## Affiche les pions ##
-			if Plateau[yAxes][xAxes] == 1 :
-				image(locX, locY, 'Warrior_pion_transp.gif', ancrage = 'center', tag = 'warrior')
-			if Plateau[yAxes][xAxes] == 2 : 
-				image(locX, locY, 'Wizzard_pion_transp.gif', ancrage = 'center', tag = 'wizzard')
-			if Plateau[yAxes][xAxes] == 3 : 
-				image(locX, locY, 'Elf_pion_transp.gif', ancrage = 'center', tag = 'elf')
-			if Plateau[yAxes][xAxes] == 4 : 
-				image(locX, locY, 'Dwarf_pion_transp.gif', ancrage = 'center', tag = 'dwarf')
-			## Affiche sortie on ou off ##
-			if Plateau[yAxes][xAxes] == 5 : 
-				image(locX+1, locY, 'Vortex_transp_off.gif', ancrage = 'center', tag = 'exitOff')
-			if Plateau[yAxes][xAxes] == 6 : 
-				image(locX+1, locY, 'Vortex_transp_on.gif', ancrage = 'center', tag = 'exitOn')
-			## Affiche les cases vides ##
-			if Plateau[yAxes][xAxes] == 7 :
-				rectangle(xAxes*largeur, yAxes*largeur, xAxes*largeur+largeur, yAxes*largeur+largeur, remplissage = 'dark grey', tag = 'caseVide')
-			## Affiche les cases vides ##
-			if Plateau[yAxes][xAxes] == 8 :
-				image(locX+1, locY, 'sablierReverse2.gif', ancrage = 'center', tag = 'sablierReverse')
-			## Affiche les objets tant que la sortie n'est pas active ##
-			if yAxes == posObjets[0][0] and xAxes == posObjets[0][1]:	
+	if touche != None:
+		for yAxes in range(nbCasesY):
+			locY = yAxes*largeur-largeur/2+largeur
+			for xAxes in range(nbCasesX):
+				locX = xAxes*largeur-largeur/2+largeur
+				## Affiche les cases libres ##
+				rectangle(x, y, x+largeur, y+largeur, remplissage = 'light grey')
+				# image(x+largeur//2, y+largeur//2, 'ground.gif', ancrage = 'center')
+				x += largeur
+				## Affiche les pions ##
+				if Plateau[yAxes][xAxes] == 1 :
+					image(locX, locY, 'Warrior_pion_transp.gif', ancrage = 'center', tag = 'warrior')
+				if Plateau[yAxes][xAxes] == 2 : 
+					image(locX, locY, 'Wizzard_pion_transp.gif', ancrage = 'center', tag = 'wizzard')
+				if Plateau[yAxes][xAxes] == 3 : 
+					image(locX, locY, 'Elf_pion_transp.gif', ancrage = 'center', tag = 'elf')
+				if Plateau[yAxes][xAxes] == 4 : 
+					image(locX, locY, 'Dwarf_pion_transp.gif', ancrage = 'center', tag = 'dwarf')
+				## Affiche sortie on ou off ##
+				if Plateau[yAxes][xAxes] == 5 : 
+					image(locX+1, locY, 'Vortex_transp_off.gif', ancrage = 'center', tag = 'exitOff')
+				if Plateau[yAxes][xAxes] == 6 : 
+					image(locX+1, locY, 'Vortex_transp_on.gif', ancrage = 'center', tag = 'exitOn')
+				## Affiche les cases vides ##
+				if Plateau[yAxes][xAxes] == 7 :
+					rectangle(xAxes*largeur, yAxes*largeur, xAxes*largeur+largeur, yAxes*largeur+largeur, remplissage = 'grey', tag = 'caseVide')
+				## Affiche les murs horizontaux ##
+				if Plateau[yAxes-1][xAxes] == 20:
+					rectangle(xAxes*largeur, yAxes*largeur-3, xAxes*largeur+largeur, yAxes*largeur+3, remplissage = 'black', tag = 'murHorizontal')
+				## Affiche les murs verticaux ##
+				if Plateau[yAxes][xAxes-1] == 25 :
+					rectangle(xAxes*largeur-3, yAxes*largeur, xAxes*largeur+3, yAxes*largeur+largeur, remplissage = 'black', tag = 'murVertical')
+				## Affiche mur + pion ##
+					# Murs horizontaux + pion
+				if Plateau[yAxes-1][xAxes] == 21 :
+					rectangle(xAxes*largeur, yAxes*largeur -3, xAxes*largeur+largeur, yAxes*largeur+3, remplissage = 'black', tag = 'murHorizontal+War')
+					image(locX, locY-largeur, 'Warrior_pion_transp.gif', ancrage = 'center', tag = 'warrior')
+				if Plateau[yAxes-1][xAxes] == 22 :
+					rectangle(xAxes*largeur, yAxes*largeur -3, xAxes*largeur+largeur, yAxes*largeur+3, remplissage = 'black', tag = 'murHorizontal+Wiz')
+					image(locX, locY-largeur, 'Wizzard_pion_transp.gif', ancrage = 'center', tag = 'wizzard')
+				if Plateau[yAxes-1][xAxes] == 23 :
+					rectangle(xAxes*largeur, yAxes*largeur -3, xAxes*largeur+largeur, yAxes*largeur+3, remplissage = 'black', tag = 'murHorizontal+Elf')
+					image(locX, locY-largeur, 'Elf_pion_transp.gif', ancrage = 'center', tag = 'elf')
+				if Plateau[yAxes-1][xAxes] == 24 :
+					rectangle(xAxes*largeur, yAxes*largeur -3, xAxes*largeur+largeur, yAxes*largeur+3, remplissage = 'black', tag = 'murHorizontal+Dwa')
+					image(locX, locY-largeur, 'Dwarf_pion_transp.gif', ancrage = 'center', tag = 'dwarf')
+					# Murs verticaux + pion
+				if Plateau[yAxes][xAxes-1] == 26 :
+					rectangle(xAxes*largeur-3, yAxes*largeur, xAxes*largeur+3, yAxes*largeur+largeur, remplissage = 'black', tag = 'murVertical+War')
+					image(locX-largeur, locY, 'Warrior_pion_transp.gif', ancrage = 'center', tag = 'warrior')
+				if Plateau[yAxes][xAxes-1] == 27 :
+					rectangle(xAxes*largeur-3, yAxes*largeur, xAxes*largeur+3, yAxes*largeur+largeur, remplissage = 'black', tag = 'murVertical+Wiz')
+					image(locX-largeur, locY, 'Wizzard_pion_transp.gif', ancrage = 'center', tag = 'wizzard')
+				if Plateau[yAxes][xAxes-1] == 28 :
+					rectangle(xAxes*largeur-3, yAxes*largeur, xAxes*largeur+3, yAxes*largeur+largeur, remplissage = 'black', tag = 'murVertical+Elf')
+					image(locX-largeur, locY, 'Elf_pion_transp.gif', ancrage = 'center', tag = 'elf')
+				if Plateau[yAxes][xAxes-1] == 29 :
+					rectangle(xAxes*largeur-3, yAxes*largeur, xAxes*largeur+3, yAxes*largeur+largeur, remplissage = 'black', tag = 'murVertical+Dwa')
+					image(locX-largeur, locY, 'Dwarf_pion_transp.gif', ancrage = 'center', tag = 'dwarf')
+				## Affiche les sabliers ##
+				if Plateau[yAxes][xAxes] == 8 :
+					image(locX+1, locY, 'sablierReverse2.gif', ancrage = 'center', tag = 'sablierReverse')
+				## Affiche les objets tant que la sortie n'est pas active ##
 				if not sortieOn:
-					image(locX, locY, 'Warrior_objet_transp.gif', ancrage = 'center', tag = 'warriorObj')	
-			if yAxes == posObjets[1][0] and xAxes == posObjets[1][1]:
-				if not sortieOn:
-					image(locX, locY, 'Wizzard_objet_transp.gif', ancrage = 'center', tag = 'wizzardObj')
-			if yAxes == posObjets[2][0] and xAxes == posObjets[2][1]:
-				if not sortieOn:
-					image(locX, locY, 'Elf_objet_transp.gif', ancrage = 'center', tag = 'elfObj')
-			if yAxes == posObjets[3][0] and xAxes == posObjets[3][1]:
-				if not sortieOn: 
-					image(locX, locY, 'Dwarf_objet_transp.gif', ancrage = 'center', tag = 'dwarfObj')
-		x = 0
-		y += largeur
+					if yAxes == posObjets[0][0] and xAxes == posObjets[0][1]:	
+						image(locX, locY, 'Warrior_objet_transp.gif', ancrage = 'center', tag = 'warriorObj')	
+					if yAxes == posObjets[1][0] and xAxes == posObjets[1][1]:
+						image(locX, locY, 'Wizzard_objet_transp.gif', ancrage = 'center', tag = 'wizzardObj')
+					if yAxes == posObjets[2][0] and xAxes == posObjets[2][1]:
+						image(locX, locY, 'Elf_objet_transp.gif', ancrage = 'center', tag = 'elfObj')
+					if yAxes == posObjets[3][0] and xAxes == posObjets[3][1]:
+						image(locX, locY, 'Dwarf_objet_transp.gif', ancrage = 'center', tag = 'dwarfObj')
+			x = 0
+			y += largeur
 
 def affichagePionDroite():
 	"""
@@ -743,20 +682,6 @@ def pionSelected1(i):
 	Affiche le rond de séléction J1
 	"""
 	cercle(nbCasesX*largeur +37, largeur*2 +(i-1)*largeur, 25, epaisseur = 2, couleur = 'red', tag = 'selecJ1')
-
-def pionSelected2(i):
-	"""
-	Affiche le rond de séléction J2
-	"""
-	if nbrJoueurs == '3 joueurs':
-		cercle(nbCasesX*largeur +37, largeur*2 +(i-1)*largeur, 25, epaisseur = 2, couleur = 'blue', tag = 'selecJ2')
-
-def pionSelected3(i):
-	"""
-	Affiche le rond de séléction J3
-	"""
-	if nbrJoueurs == '3 joueurs':
-		cercle(nbCasesX*largeur +37, largeur*2 +(i-1)*largeur, 25, epaisseur = 2, couleur = 'green', tag = 'selecJ3')
 
 def objetsLeft(sortie):
 	"""
@@ -833,30 +758,38 @@ def timer(seconde, startTime, etatReverse) :
 	# print(secLeft)
 	# print(secElapsed)
 	#Affichage du temps restant en secondes
+	efface('timer')
 	texte(largeur//2, nbCasesY*largeur+37.5, "Temps restant: " + str(minutes) + "min" + str(secondes), couleur=couleur, taille = 20, tag = "timer", ancrage = 'w')
 
 def instructions():
 	"""
 	Affiche sous forme de texte les actions que le joueur peut faire
 	"""
-	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min')-10, nbCasesY*largeur+12, "Commandes:", couleur='black', taille = 14, ancrage = 'w')
-	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+30, "a : Changer de pion à déplacer", couleur='black', taille = 12, ancrage = 'w')
-	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+50, "←↑→↓ : Déplacer le pion séléctionné", couleur='black', taille = 12, ancrage = 'w')
-	texte(largeur*6 +290 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+30, "F2 : Quitter le jeu", couleur='black', taille = 12, ancrage = 'w')
-	texte(largeur*6 +290 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+50, "F1 : Débug mode (on/off)", couleur='black', taille = 12, ancrage = 'w')
+	efface('commandes')
+	efface('selectorInstructions')
+	efface('quitterInstructions')
+	efface('movePionInstructions')
+	efface('debugModeInstructions')
+	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min')-10, nbCasesY*largeur+12, "Commandes:", couleur='black', taille = 14, ancrage = 'w', tag = 'commandes')
+	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+30, "a : Changer de pion à déplacer", couleur='black', taille = 12, ancrage = 'w', tag = 'selectorInstructions')
+	texte(largeur*6 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+50, "←↑→↓ : Déplacer le pion séléctionné", couleur='black', taille = 12, ancrage = 'w', tag = 'movePionInstructions')
+	texte(largeur*6 +290 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+30, "F2 : Quitter le jeu", couleur='black', taille = 12, ancrage = 'w', tag = 'quitterInstructions')
+	texte(largeur*6 +290 +longueur_texte(minutes+secondes)+longueur_texte('min') +27.5, nbCasesY*largeur+50, "F1 : Débug mode (on/off)", couleur='black', taille = 12, ancrage = 'w', tag = 'debugModeInstructions')
 
 def affichageDroit():
-	affichagePionDroite()
-	pionSelected1(pionVisé1)
-	pionSelected2(pionVisé2)
-	pionSelected3(pionVisé3)
-	legendeSelection()
-	ligne(nbCasesX*largeur +7, (nbCasesY*largeur)/2, nbCasesX*largeur +193, (nbCasesY*largeur)/2, couleur='black', epaisseur=3)
-	objetsLeft(sortieOn)
+	if touche != None :
+		affichagePionDroite()
+		pionSelected1(pionVisé1)
+		# pionSelected2(pionVisé2)
+		# pionSelected3(pionVisé3)
+		legendeSelection()
+		ligne(nbCasesX*largeur +7, (nbCasesY*largeur)/2, nbCasesX*largeur +193, (nbCasesY*largeur)/2, couleur='black', epaisseur=3)
+		objetsLeft(sortieOn)
 
 def affichageBas():
+	efface('separationBas')
 	timer(180, startTime, reverseTimer)
-	ligne(largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+12, largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+65, couleur='black', epaisseur=3)
+	ligne(largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+12, largeur*5.3+longueur_texte(minutes+secondes)+longueur_texte('min'), nbCasesY*largeur+65, couleur='black', epaisseur=3, tag = 'separationBas')
 	instructions()
 
 def perdu():
@@ -864,6 +797,7 @@ def perdu():
 	Si tous les pions ne sont pas sortis avant la fin du temps impartit, on arrête la partie et on affiche les texte de fin.
 	Partie perdue.
 	"""
+	efface_tout()
 	while 1 :
 		texte((nbCasesX//2+1)*largeur, (nbCasesY//2-1)*largeur, "Temps écoulé, perdu..", couleur="red", ancrage = "center", taille = 45)
 		texte((nbCasesX//2+1)*largeur, (nbCasesY//1.5)*largeur, "Vous ferez mieux la prochaine fois, retentez votre chance!", couleur="black", ancrage = "center", taille = 25)
@@ -876,6 +810,7 @@ def gagner(min, sec):
 	Si tous les pions sont sortis, on arrête la partie et on affiche les texte de fin
 	Partie gagnée.
 	"""
+	efface_tout()
 	s = 60-sec
 	while 1 :
 		efface_tout()
@@ -906,12 +841,32 @@ if __name__ == '__main__':
 		reverseTimer = False
 		
 		## Création entités ##
-		creationPion()
+		# creationPion()
 		creationObjet()
-		creationSablier(0)
-		creationSortie()
-		creationCaseVide(10)
-		
+		# creationSablier(0)
+		# creationSortie()
+		# creationMur(10)
+		# creationCaseVide(10)
+
+		Plateau = [ [7,7,7,25,0,25,0,7,8,25,0,20,20,20,0,25,0,0],
+					[7,11,0,25,20,25,0,7,7,25,25,0,0,25,0,25,8,0],
+					[7,0,7,25,25,25,20,20,20,25,25,0,5,25,0,25,0,0],
+					[20,20,0,20,20,20,20,0,0,25,25,20,0,25,20,7,7,7],
+					[0,0,25,0,0,0,25,20,20,20,20,25,0,7,0,0,0,0],
+					[7,25,25,0,8,25,0,0,0,0,0,25,25,0,12,20,20,20],
+					[7,0,25,20,20,0,7,7,0,0,7,7,25,0,25,0,0,8],
+					[7,25,25,0,20,0,7,0,0,0,0,7,20,20,0,20,20,20],
+					[7,8,25,20,25,0,0,0,1,2,0,0,0,25,0,25,0,20],
+					[7,25,25,0,25,0,0,0,3,4,0,0,25,20,20,25,20,0],
+					[20,20,25,0,0,20,7,0,0,0,0,7,14,20,20,25,0,20],
+					[0,0,0,25,0,20,7,7,0,0,7,7,20,25,0,25,20,0],
+					[20,20,0,7,25,8,0,20,20,25,0,0,25,0,0,25,0,20],
+					[0,25,0,25,25,0,0,20,20,20,7,0,20,20,20,0,0,0],
+					[20,25,7,25,25,20,7,0,0,0,0,25,0,0,25,0,7,8],
+					[0,20,25,25,20,13,25,0,25,20,8,25,20,20,25,0,7,20],
+					[20,0,25,0,25,20,20,20,7,25,0,25,0,0,25,0,20,0],
+					[0,25,0,25,0,0,0,0,0,0,0,25,25,0,0,0,25,0]]
+
 		## Boucle principale ##
 		while 1:
 			affichageBas()
@@ -921,6 +876,7 @@ if __name__ == '__main__':
 			sortieOn = isSortieOn(sortieOn)
 			debugMode = actionTouche(pionVisé1, pionVisé2, pionVisé3, objetsOwn, pionsInSortie, debugMode)
 			mise_a_jour()
-			efface_tout()
+			if touche != None:
+				efface_tout()
 
 # GRISER L'IMAGE DU PION QUAND IL NE PEUT PLUS ETRE SELECTIONNER (quand il est sortit) #
